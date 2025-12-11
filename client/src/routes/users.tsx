@@ -47,3 +47,4 @@ function UsersLayout() {
 // /users
 // /users?q=user1&page=1
 // /users/3
+// /users/new
