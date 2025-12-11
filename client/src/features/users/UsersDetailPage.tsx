@@ -21,7 +21,7 @@ export function UserDetailPage() {
 
       <div style={{ marginTop: 12 }}>
         <Link
-          to="/users"
+          to=".."
           search={{ page: 1 }}
         >
           Back to users

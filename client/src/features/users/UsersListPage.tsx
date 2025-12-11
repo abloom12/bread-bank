@@ -21,8 +21,6 @@ export function UsersListPage() {
 
   return (
     <div>
-      <h2>Users</h2>
-
       <div style={{ marginBottom: 12 }}>
         <div>
           <strong>Search:</strong> {q ?? '(none)'}

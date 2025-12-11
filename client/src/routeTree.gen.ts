@@ -13,6 +13,8 @@ import { Route as UsersRouteImport } from './routes/users'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UsersIndexRouteImport } from './routes/users.index'
+import { Route as UsersNewRouteImport } from './routes/users.new'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 
 const UsersRoute = UsersRouteImport.update({
@@ -35,6 +37,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UsersIndexRoute = UsersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UsersRoute,
+} as any)
+const UsersNewRoute = UsersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => UsersRoute,
+} as any)
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/$userId',
   path: '/$userId',
@@ -47,13 +59,16 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/users': typeof UsersRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/users/new': typeof UsersNewRoute
+  '/users/': typeof UsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
   '/search': typeof SearchRoute
-  '/users': typeof UsersRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/users/new': typeof UsersNewRoute
+  '/users': typeof UsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +77,30 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/users': typeof UsersRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/users/new': typeof UsersNewRoute
+  '/users/': typeof UsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/health' | '/search' | '/users' | '/users/$userId'
+  fullPaths:
+    | '/'
+    | '/health'
+    | '/search'
+    | '/users'
+    | '/users/$userId'
+    | '/users/new'
+    | '/users/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/health' | '/search' | '/users' | '/users/$userId'
-  id: '__root__' | '/' | '/health' | '/search' | '/users' | '/users/$userId'
+  to: '/' | '/health' | '/search' | '/users/$userId' | '/users/new' | '/users'
+  id:
+    | '__root__'
+    | '/'
+    | '/health'
+    | '/search'
+    | '/users'
+    | '/users/$userId'
+    | '/users/new'
+    | '/users/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -108,6 +140,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/users/': {
+      id: '/users/'
+      path: '/'
+      fullPath: '/users/'
+      preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof UsersRoute
+    }
+    '/users/new': {
+      id: '/users/new'
+      path: '/new'
+      fullPath: '/users/new'
+      preLoaderRoute: typeof UsersNewRouteImport
+      parentRoute: typeof UsersRoute
+    }
     '/users/$userId': {
       id: '/users/$userId'
       path: '/$userId'
@@ -120,10 +166,14 @@ declare module '@tanstack/react-router' {
 
 interface UsersRouteChildren {
   UsersUserIdRoute: typeof UsersUserIdRoute
+  UsersNewRoute: typeof UsersNewRoute
+  UsersIndexRoute: typeof UsersIndexRoute
 }
 
 const UsersRouteChildren: UsersRouteChildren = {
   UsersUserIdRoute: UsersUserIdRoute,
+  UsersNewRoute: UsersNewRoute,
+  UsersIndexRoute: UsersIndexRoute,
 }
 
 const UsersRouteWithChildren = UsersRoute._addFileChildren(UsersRouteChildren)
