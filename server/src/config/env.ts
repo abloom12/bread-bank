@@ -5,7 +5,6 @@ const EnvSchema = z.object({
 
   PORT: z.coerce.number().int().positive(),
 
-  // your existing config uses this
   CORS_ORIGIN: z.string().min(1),
 
   SESSION_SECRET: z.string().min(32),

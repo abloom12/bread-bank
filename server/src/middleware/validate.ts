@@ -23,6 +23,6 @@ export const validate =
       );
     }
 
-    (req as any)[target] = result.data;
+    Object.assign(req, { [target]: result.data });
     next();
   };

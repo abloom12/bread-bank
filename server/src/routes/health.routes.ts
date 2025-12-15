@@ -5,5 +5,5 @@ import { sendSuccess } from '../lib/api-response';
 export const healthRouter = Router();
 
 healthRouter.get('/', (_req, res) => {
-  sendSuccess(res, { ok: true }, 201);
+  sendSuccess(res, { ok: true });
 });
