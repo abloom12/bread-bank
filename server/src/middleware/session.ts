@@ -1,5 +1,5 @@
 import session from 'express-session';
-import { env, isProd } from './env';
+import { env, isProd } from '../config/env';
 
 export function sessionMiddleware() {
   return session({
