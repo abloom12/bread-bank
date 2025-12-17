@@ -1,51 +1,15 @@
-## server/src/services/household.service.ts
+# Auth Flow Implementation
 
-```typescript
-import pool from '../db/db';
-import type { Household } from '@app/shared';
-
-interface HouseholdRow {
-  id: string;
-  name: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-function mapRowToHousehold(row: HouseholdRow): Household {
-  return {
-    id: row.id,
-    name: row.name,
-    createdAt: row.created_at.toISOString(),
-    updatedAt: row.updated_at.toISOString(),
-  };
-}
-
-export async function createHousehold(name: string): Promise<Household> {
-  const result = await pool.query<HouseholdRow>(
-    `INSERT INTO households (name) VALUES ($1) RETURNING *`,
-    [name],
-  );
-  return mapRowToHousehold(result.rows[0]);
-}
-
-export async function findHouseholdById(id: string): Promise<Household | null> {
-  const result = await pool.query<HouseholdRow>(
-    `SELECT * FROM households WHERE id = $1`,
-    [id],
-  );
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToHousehold(result.rows[0]);
-}
-```
+Complete server-side code for authentication using the vertical slices + identity dependency layer pattern.
 
 ---
 
-## server/src/services/user.service.ts
+## 1. Identity Module (Dependency Layer)
+
+### features/identity/repositories/user.repository.ts
 
 ```typescript
-import pool from '../db/db';
+import pool from '../../../db/db';
 import type { User, PublicUser } from '@app/shared';
 
 interface UserRow {
@@ -84,6 +48,22 @@ export function toPublicUser(user: User): PublicUser {
   };
 }
 
+export async function findUserById(id: string): Promise<User | null> {
+  const result = await pool.query<UserRow>(
+    `SELECT * FROM users WHERE id = $1`,
+    [id],
+  );
+  return result.rows[0] ? mapRowToUser(result.rows[0]) : null;
+}
+
+export async function findUserByEmail(email: string): Promise<User | null> {
+  const result = await pool.query<UserRow>(
+    `SELECT * FROM users WHERE email = $1`,
+    [email],
+  );
+  return result.rows[0] ? mapRowToUser(result.rows[0]) : null;
+}
+
 export async function findUserByProviderId(
   provider: 'google' | 'apple' | 'email',
   providerId: string,
@@ -92,28 +72,7 @@ export async function findUserByProviderId(
     `SELECT * FROM users WHERE auth_provider = $1 AND provider_id = $2`,
     [provider, providerId],
   );
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToUser(result.rows[0]);
-}
-
-export async function findUserById(id: string): Promise<User | null> {
-  const result = await pool.query<UserRow>(`SELECT * FROM users WHERE id = $1`, [id]);
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToUser(result.rows[0]);
-}
-
-export async function findUserByEmail(email: string): Promise<User | null> {
-  const result = await pool.query<UserRow>(`SELECT * FROM users WHERE email = $1`, [
-    email,
-  ]);
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToUser(result.rows[0]);
+  return result.rows[0] ? mapRowToUser(result.rows[0]) : null;
 }
 
 export interface CreateUserParams {
@@ -145,10 +104,51 @@ export async function createUser(params: CreateUserParams): Promise<User> {
 
 ---
 
-## server/src/services/invite.service.ts
+### features/identity/repositories/household.repository.ts
 
 ```typescript
-import pool from '../db/db';
+import pool from '../../../db/db';
+import type { Household } from '@app/shared';
+
+interface HouseholdRow {
+  id: string;
+  name: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+function mapRowToHousehold(row: HouseholdRow): Household {
+  return {
+    id: row.id,
+    name: row.name,
+    createdAt: row.created_at.toISOString(),
+    updatedAt: row.updated_at.toISOString(),
+  };
+}
+
+export async function findHouseholdById(id: string): Promise<Household | null> {
+  const result = await pool.query<HouseholdRow>(
+    `SELECT * FROM households WHERE id = $1`,
+    [id],
+  );
+  return result.rows[0] ? mapRowToHousehold(result.rows[0]) : null;
+}
+
+export async function createHousehold(name: string): Promise<Household> {
+  const result = await pool.query<HouseholdRow>(
+    `INSERT INTO households (name) VALUES ($1) RETURNING *`,
+    [name],
+  );
+  return mapRowToHousehold(result.rows[0]);
+}
+```
+
+---
+
+### features/identity/repositories/invite.repository.ts
+
+```typescript
+import pool from '../../../db/db';
 import type { Invite } from '@app/shared';
 
 interface InviteRow {
@@ -162,31 +162,16 @@ interface InviteRow {
   created_at: Date;
 }
 
-// Note: The shared Invite type uses 'inviteBy' but should be 'invitedBy'.
-// This maps correctly from DB snake_case to the intended camelCase.
 function mapRowToInvite(row: InviteRow): Invite {
   return {
     id: row.id,
     householdId: row.household_id,
     email: row.email,
-    // Maps to 'inviteBy' to match the current shared schema (typo)
-    // If the shared schema is fixed to 'invitedBy', update this key
-    inviteBy: row.invited_by,
+    token: row.token,
+    invitedBy: row.invited_by,
     expiresAt: row.expires_at.toISOString(),
     usedAt: row.used_at ? row.used_at.toISOString() : null,
     createdAt: row.created_at.toISOString(),
-  };
-}
-
-// Internal type that includes the token (not exposed in API responses)
-export interface InviteWithToken extends Invite {
-  token: string;
-}
-
-function mapRowToInviteWithToken(row: InviteRow): InviteWithToken {
-  return {
-    ...mapRowToInvite(row),
-    token: row.token,
   };
 }
 
@@ -196,37 +181,29 @@ export async function createInvite(
   householdId: string,
   email: string,
   invitedBy: string,
-): Promise<InviteWithToken> {
+): Promise<Invite> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + INVITE_EXPIRY_DAYS);
 
-  // Token is auto-generated by the database (gen_random_uuid())
   const result = await pool.query<InviteRow>(
     `INSERT INTO invites (household_id, email, invited_by, expires_at)
      VALUES ($1, $2, $3, $4)
      RETURNING *`,
     [householdId, email, invitedBy, expiresAt],
   );
-  return mapRowToInviteWithToken(result.rows[0]);
+  return mapRowToInvite(result.rows[0]);
 }
 
-export async function findValidInviteByToken(
-  token: string,
-): Promise<InviteWithToken | null> {
+export async function findValidInviteByToken(token: string): Promise<Invite | null> {
   const result = await pool.query<InviteRow>(
     `SELECT * FROM invites
      WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()`,
     [token],
   );
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToInviteWithToken(result.rows[0]);
+  return result.rows[0] ? mapRowToInvite(result.rows[0]) : null;
 }
 
-export async function findValidInviteByEmail(
-  email: string,
-): Promise<InviteWithToken | null> {
+export async function findValidInviteByEmail(email: string): Promise<Invite | null> {
   const result = await pool.query<InviteRow>(
     `SELECT * FROM invites
      WHERE email = $1 AND used_at IS NULL AND expires_at > NOW()
@@ -234,10 +211,19 @@ export async function findValidInviteByEmail(
      LIMIT 1`,
     [email],
   );
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToInviteWithToken(result.rows[0]);
+  return result.rows[0] ? mapRowToInvite(result.rows[0]) : null;
+}
+
+export async function findPendingInviteByEmail(
+  email: string,
+  householdId: string,
+): Promise<Invite | null> {
+  const result = await pool.query<InviteRow>(
+    `SELECT * FROM invites
+     WHERE email = $1 AND household_id = $2 AND used_at IS NULL AND expires_at > NOW()`,
+    [email, householdId],
+  );
+  return result.rows[0] ? mapRowToInvite(result.rows[0]) : null;
 }
 
 export async function markInviteAsUsed(id: string): Promise<void> {
@@ -251,29 +237,60 @@ export async function getHouseholdInvites(householdId: string): Promise<Invite[]
   );
   return result.rows.map(mapRowToInvite);
 }
-
-export async function findPendingInviteByEmail(
-  email: string,
-  householdId: string,
-): Promise<Invite | null> {
-  const result = await pool.query<InviteRow>(
-    `SELECT * FROM invites
-     WHERE email = $1 AND household_id = $2 AND used_at IS NULL AND expires_at > NOW()`,
-    [email, householdId],
-  );
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return mapRowToInvite(result.rows[0]);
-}
 ```
 
 ---
 
-## server/src/services/google-oauth.service.ts
+### features/identity/identity.service.ts
 
 ```typescript
-import { config } from '../config';
+// Public API for identity operations
+// Other features import from here, not directly from repositories
+
+import * as userRepo from './repositories/user.repository';
+import * as householdRepo from './repositories/household.repository';
+import * as inviteRepo from './repositories/invite.repository';
+
+// Re-export types
+export type { CreateUserParams } from './repositories/user.repository';
+
+// User operations
+export const findUserById = userRepo.findUserById;
+export const findUserByEmail = userRepo.findUserByEmail;
+export const findUserByProviderId = userRepo.findUserByProviderId;
+export const createUser = userRepo.createUser;
+export const toPublicUser = userRepo.toPublicUser;
+
+// Household operations
+export const findHouseholdById = householdRepo.findHouseholdById;
+export const createHousehold = householdRepo.createHousehold;
+
+// Invite operations
+export const createInvite = inviteRepo.createInvite;
+export const findValidInviteByToken = inviteRepo.findValidInviteByToken;
+export const findValidInviteByEmail = inviteRepo.findValidInviteByEmail;
+export const findPendingInviteByEmail = inviteRepo.findPendingInviteByEmail;
+export const markInviteAsUsed = inviteRepo.markInviteAsUsed;
+export const getHouseholdInvites = inviteRepo.getHouseholdInvites;
+```
+
+---
+
+### features/identity/index.ts
+
+```typescript
+// Public exports for the identity module
+export * from './identity.service';
+```
+
+---
+
+## 2. Auth Feature
+
+### features/auth/google-oauth.ts
+
+```typescript
+import { config } from '../../config';
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -332,15 +349,12 @@ export async function exchangeCodeForTokens(code: string): Promise<GoogleTokenRe
 }
 
 export function decodeIdToken(idToken: string): GoogleUserInfo {
-  // JWT structure: header.payload.signature
-  // We only need to decode the payload (no verification needed as we just got it from Google)
   const parts = idToken.split('.');
   if (parts.length !== 3) {
     throw new Error('Invalid ID token format');
   }
 
   const payload = parts[1];
-  // Base64url decode
   const decoded = Buffer.from(payload, 'base64url').toString('utf-8');
   return JSON.parse(decoded);
 }
@@ -348,84 +362,26 @@ export function decodeIdToken(idToken: string): GoogleUserInfo {
 
 ---
 
-## server/src/middleware/require-auth.ts
-
-```typescript
-import type { RequestHandler } from 'express';
-import type { PublicUser, Household } from '@app/shared';
-import { findUserById, toPublicUser } from '../services/user.service';
-import { findHouseholdById } from '../services/household.service';
-import { AppError } from '../lib/AppError';
-
-// Extend Express Request type
-declare global {
-  namespace Express {
-    interface Request {
-      user?: PublicUser;
-      household?: Household;
-    }
-  }
-}
-
-export const requireAuth: RequestHandler = async (req, _res, next) => {
-  try {
-    const userId = req.session?.userId;
-
-    if (!userId) {
-      throw new AppError('Unauthorized', 401);
-    }
-
-    const user = await findUserById(userId);
-
-    if (!user) {
-      // User no longer exists, destroy the stale session
-      req.session.destroy(() => {});
-      throw new AppError('Unauthorized', 401);
-    }
-
-    const household = await findHouseholdById(user.householdId);
-
-    if (!household) {
-      // Household no longer exists (shouldn't happen due to CASCADE, but handle it)
-      req.session.destroy(() => {});
-      throw new AppError('Unauthorized', 401);
-    }
-
-    req.user = toPublicUser(user);
-    req.household = household;
-
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-```
-
----
-
-## server/src/routes/auth.routes.ts
+### features/auth/auth.routes.ts
 
 ```typescript
 import { Router } from 'express';
 import crypto from 'crypto';
-import { asyncHandler } from '../middleware/async-handler';
-import { requireAuth } from '../middleware/require-auth';
-import { config } from '../config';
-import { sendSuccess } from '../lib/api-response';
-import { AppError } from '../lib/AppError';
-import {
-  getGoogleAuthUrl,
-  exchangeCodeForTokens,
-  decodeIdToken,
-} from '../services/google-oauth.service';
+
+import { asyncHandler } from '../../middleware/async-handler';
+import { requireAuth } from '../../middleware/require-auth';
+import { config } from '../../config';
+import { sendSuccess } from '../../lib/api-response';
+
+import { getGoogleAuthUrl, exchangeCodeForTokens, decodeIdToken } from './google-oauth';
 import {
   findUserByProviderId,
   findUserByEmail,
   createUser,
-  toPublicUser,
-} from '../services/user.service';
-import { createHousehold } from '../services/household.service';
-import { findValidInviteByEmail, markInviteAsUsed } from '../services/invite.service';
+  createHousehold,
+  findValidInviteByEmail,
+  markInviteAsUsed,
+} from '../identity';
 
 export const authRouter = Router();
 
@@ -433,7 +389,6 @@ export const authRouter = Router();
 authRouter.get(
   '/google',
   asyncHandler(async (req, res) => {
-    // Generate random state for CSRF protection
     const state = crypto.randomBytes(32).toString('hex');
     req.session.oauthState = state;
 
@@ -448,17 +403,14 @@ authRouter.get(
   asyncHandler(async (req, res) => {
     const { code, state, error } = req.query;
 
-    // Handle OAuth errors
     if (error) {
       return res.redirect(`${config.appOrigin}/login?error=access_denied`);
     }
 
-    // Verify state to prevent CSRF
     if (!state || state !== req.session.oauthState) {
       return res.redirect(`${config.appOrigin}/login?error=invalid_state`);
     }
 
-    // Clear the OAuth state from session
     delete req.session.oauthState;
 
     if (!code || typeof code !== 'string') {
@@ -466,13 +418,9 @@ authRouter.get(
     }
 
     try {
-      // Exchange authorization code for tokens
       const tokens = await exchangeCodeForTokens(code);
-
-      // Decode the ID token to get user info
       const googleUser = decodeIdToken(tokens.id_token);
 
-      // Verify email is verified
       if (!googleUser.email_verified) {
         return res.redirect(`${config.appOrigin}/login?error=email_not_verified`);
       }
@@ -481,33 +429,29 @@ authRouter.get(
       let user = await findUserByProviderId('google', googleUser.sub);
 
       if (user) {
-        // Existing user - log them in
         req.session.userId = user.id;
         return res.redirect(config.appOrigin);
       }
 
-      // New user - check if email exists with a different provider
+      // Check if email exists with a different provider
       const existingUserWithEmail = await findUserByEmail(googleUser.email);
       if (existingUserWithEmail) {
         return res.redirect(`${config.appOrigin}/login?error=email_exists`);
       }
 
-      // Check for a valid invite for this email
+      // Check for a valid invite
       const invite = await findValidInviteByEmail(googleUser.email);
 
       let householdId: string;
 
       if (invite) {
-        // Join the inviter's household
         householdId = invite.householdId;
         await markInviteAsUsed(invite.id);
       } else {
-        // Create a new household for this user
         const household = await createHousehold(`${googleUser.name}'s Household`);
         householdId = household.id;
       }
 
-      // Create the new user
       user = await createUser({
         householdId,
         email: googleUser.email,
@@ -517,7 +461,6 @@ authRouter.get(
         providerId: googleUser.sub,
       });
 
-      // Log them in
       req.session.userId = user.id;
       return res.redirect(config.appOrigin);
     } catch (err) {
@@ -527,7 +470,7 @@ authRouter.get(
   }),
 );
 
-// POST /api/auth/logout - Log out the current user
+// POST /api/auth/logout
 authRouter.post(
   '/logout',
   asyncHandler(async (req, res) => {
@@ -549,7 +492,6 @@ authRouter.get(
   '/me',
   requireAuth,
   asyncHandler(async (req, res) => {
-    // requireAuth middleware ensures user and household are set
     sendSuccess(res, {
       user: req.user!,
       household: req.household!,
@@ -560,22 +502,26 @@ authRouter.get(
 
 ---
 
-## server/src/routes/invite.routes.ts
+## 3. Invite Feature
+
+### features/invite/invite.routes.ts
 
 ```typescript
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/async-handler';
-import { requireAuth } from '../middleware/require-auth';
-import { validate } from '../middleware/validate';
-import { sendSuccess } from '../lib/api-response';
-import { AppError } from '../lib/AppError';
+
+import { asyncHandler } from '../../middleware/async-handler';
+import { requireAuth } from '../../middleware/require-auth';
+import { validate } from '../../middleware/validate';
+import { sendSuccess } from '../../lib/api-response';
+import { AppError } from '../../lib/AppError';
 import { CreateInviteSchema } from '@app/shared';
-import { findUserByEmail } from '../services/user.service';
+
 import {
+  findUserByEmail,
   createInvite,
   getHouseholdInvites,
   findPendingInviteByEmail,
-} from '../services/invite.service';
+} from '../identity';
 
 export const inviteRouter = Router();
 
@@ -598,39 +544,105 @@ inviteRouter.post(
   asyncHandler(async (req, res) => {
     const { email } = req.body as { email: string };
 
-    // Check if email already has an account
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       throw new AppError('A user with this email already exists', 400);
     }
 
-    // Check if a valid invite already exists for this email in this household
     const existingInvite = await findPendingInviteByEmail(email, req.household!.id);
     if (existingInvite) {
       throw new AppError('An active invite already exists for this email', 400);
     }
 
-    // Create the invite
     const invite = await createInvite(req.household!.id, email, req.user!.id);
-
-    // Return invite without token (token only in email/link)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { token, ...inviteWithoutToken } = invite;
-    sendSuccess(res, inviteWithoutToken, 201);
+    sendSuccess(res, invite, 201);
   }),
 );
 ```
 
 ---
 
-## server/src/routes/index.ts
+## 4. Health Feature
+
+### features/health/health.routes.ts
+
+```typescript
+import { Router } from 'express';
+import { sendSuccess } from '../../lib/api-response';
+
+export const healthRouter = Router();
+
+healthRouter.get('/', (_req, res) => {
+  sendSuccess(res, { ok: true });
+});
+```
+
+---
+
+## 5. Shared Middleware
+
+### middleware/require-auth.ts
+
+```typescript
+import type { RequestHandler } from 'express';
+import type { PublicUser, Household } from '@app/shared';
+
+import { findUserById, findHouseholdById, toPublicUser } from '../features/identity';
+import { AppError } from '../lib/AppError';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: PublicUser;
+      household?: Household;
+    }
+  }
+}
+
+export const requireAuth: RequestHandler = async (req, _res, next) => {
+  try {
+    const userId = req.session?.userId;
+
+    if (!userId) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    const user = await findUserById(userId);
+
+    if (!user) {
+      req.session.destroy(() => {});
+      throw new AppError('Unauthorized', 401);
+    }
+
+    const household = await findHouseholdById(user.householdId);
+
+    if (!household) {
+      req.session.destroy(() => {});
+      throw new AppError('Unauthorized', 401);
+    }
+
+    req.user = toPublicUser(user);
+    req.household = household;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+---
+
+## 6. Updated Files
+
+### routes/index.ts
 
 ```typescript
 import { Router } from 'express';
 
-import { healthRouter } from './health.routes';
-import { authRouter } from './auth.routes';
-import { inviteRouter } from './invite.routes';
+import { healthRouter } from '../features/health/health.routes';
+import { authRouter } from '../features/auth/auth.routes';
+import { inviteRouter } from '../features/invite/invite.routes';
 
 export const apiRouter = Router();
 
@@ -641,7 +653,7 @@ apiRouter.use('/invites', inviteRouter);
 
 ---
 
-## server/src/app.ts
+### app.ts
 
 ```typescript
 import express, { type Request, type Response, type NextFunction } from 'express';
@@ -653,29 +665,23 @@ import morgan from 'morgan';
 import { config } from './config';
 import { apiRouter } from './routes';
 import { sessionMiddleware } from './middleware/session';
-
 import { AppError } from './lib/AppError';
 
 export const createApp = () => {
   const app = express();
 
-  // app level config
   app.disable('x-powered-by');
 
-  // logging
   app.use(morgan('combined'));
 
-  // body parsing
   app.use(express.json({ limit: '1mb' }));
 
-  // secuirity headers
   app.use(
     helmet({
       crossOriginResourcePolicy: false,
     }),
   );
 
-  // rate limiting
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000,
@@ -685,7 +691,6 @@ export const createApp = () => {
     }),
   );
 
-  // CORS
   app.use(
     cors({
       origin: (origin, cb) => {
@@ -701,7 +706,6 @@ export const createApp = () => {
   // Session middleware - MUST be before routes
   app.use(sessionMiddleware());
 
-  // routes
   app.use('/api', apiRouter);
 
   app.use((_req, res) => {
@@ -713,7 +717,6 @@ export const createApp = () => {
     });
   });
 
-  // error handler
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof AppError) {
       return res.status(err.statusCode).json({
@@ -749,61 +752,35 @@ export const createApp = () => {
 
 ---
 
-## server/src/middleware/validate.ts (fix import path)
+## File Creation Order
 
-```typescript
-import type { RequestHandler } from 'express';
-import type { ZodType } from 'zod';
-import { AppError } from '../lib/AppError';
+1. Create directories:
+   ```
+   mkdir -p server/src/features/identity/repositories
+   mkdir -p server/src/features/auth
+   mkdir -p server/src/features/invite
+   mkdir -p server/src/features/health
+   ```
 
-type Target = 'body' | 'query' | 'params';
+2. Create identity module:
+   - `features/identity/repositories/user.repository.ts`
+   - `features/identity/repositories/household.repository.ts`
+   - `features/identity/repositories/invite.repository.ts`
+   - `features/identity/identity.service.ts`
+   - `features/identity/index.ts`
 
-export const validate =
-  (schema: ZodType<unknown>, target: Target = 'body'): RequestHandler =>
-  (req, _res, next) => {
-    const result = schema.safeParse(req[target]);
+3. Create features:
+   - `features/auth/google-oauth.ts`
+   - `features/auth/auth.routes.ts`
+   - `features/invite/invite.routes.ts`
+   - `features/health/health.routes.ts`
 
-    if (!result.success) {
-      return next(
-        new AppError(
-          `Validation error: ${result.error.issues
-            .map(issue => {
-              const path = issue.path.join('.') || '(root)';
-              return `${path}: ${issue.message}`;
-            })
-            .join('; ')}`,
-          400,
-        ),
-      );
-    }
+4. Create/update middleware:
+   - `middleware/require-auth.ts`
 
-    Object.assign(req, { [target]: result.data });
-    next();
-  };
-```
+5. Update existing:
+   - `routes/index.ts`
+   - `app.ts`
 
----
-
-## packages/shared/src/schemas/invite.ts (fix typo - inviteBy -> invitedBy)
-
-```typescript
-import { z } from 'zod';
-
-export const InviteSchema = z.object({
-  id: z.uuid(),
-  householdId: z.uuid(),
-  email: z.email(),
-  invitedBy: z.uuid(), // Fixed: was 'inviteBy'
-  expiresAt: z.iso.datetime(),
-  createdAt: z.iso.datetime(),
-  usedAt: z.iso.datetime().nullable(),
-});
-
-export const CreateInviteSchema = z.object({
-  email: z.email(),
-});
-
-export type Invite = z.infer<typeof InviteSchema>;
-```
-
----
+6. Remove old files:
+   - `routes/health.routes.ts` (moved to features)
