@@ -28,8 +28,8 @@ npm -w client run test    # Vitest
 
 This is a TypeScript monorepo with npm workspaces:
 
-- **client/** - React SPA using Vite, TanStack Router/Query, Tailwind CSS
-- **server/** - Express 5 API with Zod validation
+- **client/** - React SPA using Vite, TanStack Router/Query/Form, Zod, Tailwind CSS
+- **server/** - Express 5 API with Zod validation, Postresql databsae using pg to connect
 - **packages/shared/** - Shared types and schemas (published as `@app/shared`)
 
 ### Client Structure
@@ -37,6 +37,8 @@ This is a TypeScript monorepo with npm workspaces:
 Routes are file-based using TanStack Router. Route files in `client/src/routes/` auto-generate `routeTree.gen.ts`.
 
 - `src/routes/` - Route components (file-based routing)
+- `src/components/` - Reusable UI components
+  - `src/components/ui/` - Base UI components (Button, etc.) using CVA + Tailwind
 - `src/features/` - Feature modules (e.g., `features/health/`)
 - `src/lib/` - Utilities (`api.ts` for fetch wrapper, `cn.ts` for classnames, `search-params.ts` for type-safe URL params)
 
@@ -46,14 +48,19 @@ Routes are file-based using TanStack Router. Route files in `client/src/routes/`
 - `src/server.ts` - Entry point, loads env via dotenv
 - `src/config/` - Zod-validated environment config
 - `src/routes/` - API route handlers (mounted at `/api`)
-- `src/errors/AppError.ts` - Custom error class for API responses
+- `src/db/` - PostgreSQL connection pool and migrations
+- `src/features/` - Feature modules (auth, households, etc.)
+- `src/lib/` - Utilities (AppError, api-response helpers)
+- `src/middleware/` - Validation, session, async error handling
 
 ### Shared Package
 
 Contains Zod schemas and TypeScript types shared between client and server. Uses `ApiResponse<T>` type for consistent API response format:
 
 ```typescript
-type ApiResponse<T> = { data: T; error: null } | { data: null; error: { message: string } }
+type ApiResponse<T> =
+  | { data: T; error: null }
+  | { data: null; error: { message: string } };
 ```
 
 ### Key Patterns
@@ -61,3 +68,5 @@ type ApiResponse<T> = { data: T; error: null } | { data: null; error: { message:
 - Server validates all env vars with Zod at startup (`server/src/config/env.ts`)
 - Vite proxies `/api/*` requests to the Express server in development
 - Client uses `apiGet<T>()` wrapper for fetch calls with error handling
+- Google OAuth support configured via environment variables
+- Express-session middleware handles auth state

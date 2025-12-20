@@ -21,3 +21,9 @@ npm-debug.log*
 *.sw?
 .vscode/*
 !.vscode/extensions.json
+
+# Claude specific
+.claude/
+
+# Other
+__shadcn/

@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 import type { ZodType } from 'zod';
-import { AppError } from '../errors/AppError';
+import { AppError } from '../lib/AppError';
 
 type Target = 'body' | 'query' | 'params';
 
