@@ -1,0 +1,63 @@
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+import { cn } from '@/lib/cn';
+import { Separator } from './Separator';
+
+const buttonGroupVariants = cva('flex w-fit items-stretch', {
+  variants: {
+    orientation: {
+      horizontal: '',
+      vertical: 'flex-col',
+    },
+  },
+});
+
+function ButtonGroup({
+  className,
+  orientation,
+  ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof buttonGroupVariants>) {
+  return (
+    <div
+      role="group"
+      data-slot="button-group"
+      className={cn(buttonGroupVariants({ orientation }), className)}
+      {...props}
+    />
+  );
+}
+
+function ButtonGroupText({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-2 rounded-md border px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function ButtonGroupSeparator({
+  className,
+  orientation = 'vertical',
+  ...props
+}: React.ComponentProps<typeof Separator> & {
+  orientation?: 'horizontal' | 'vertical';
+}) {
+  return (
+    <Separator
+      data-slot="button-group-separator"
+      orientation={orientation}
+      className={cn(
+        'relative self-stretch data-[orientation=vertical]:h-auto',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export { ButtonGroup, ButtonGroupText, ButtonGroupSeparator };

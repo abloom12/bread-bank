@@ -23,9 +23,9 @@
     "typecheck": "npm run typecheck:shared && npm run typecheck:client && npm run typecheck:server"
   },
   "devDependencies": {
-    "@total-typescript/ts-reset": "^0.6.1",
-    "prettier": "^3.7.4",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "typescript": "^5.9.3"
+    "@total-typescript/ts-reset": "0.6.1",
+    "prettier": "3.7.4",
+    "prettier-plugin-tailwindcss": "0.7.2",
+    "typescript": "5.9.3"
   }
 }

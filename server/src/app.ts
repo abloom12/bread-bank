@@ -7,7 +7,7 @@ import morgan from 'morgan';
 import { config } from './config';
 import { apiRouter } from './routes';
 
-import { AppError } from './errors/AppError';
+import { AppError } from './lib/AppError';
 
 export const createApp = () => {
   const app = express();
@@ -74,7 +74,7 @@ export const createApp = () => {
       });
     }
 
-    if (err.message?.startsWith('CORS policy')) {
+    if (err.message === 'Not allowed by CORS') {
       return res.status(403).json({
         data: null,
         error: {

@@ -15,13 +15,6 @@ function RootLayout() {
       <nav style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
         <Link to="/">Home</Link>
         <Link to="/health">Health</Link>
-        <Link to="/search">Search</Link>
-        <Link
-          to="/users"
-          search={{ q: 'user1', page: 1 }}
-        >
-          Users
-        </Link>
       </nav>
 
       <Outlet />

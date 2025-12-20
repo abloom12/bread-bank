@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 import type { ZodType } from 'zod';
-import { AppError } from '../errors/AppError';
+import { AppError } from '../lib/AppError';
 
 type Target = 'body' | 'query' | 'params';
 
@@ -23,6 +23,6 @@ export const validate =
       );
     }
 
-    (req as any)[target] = result.data;
+    Object.assign(req, { [target]: result.data });
     next();
   };
