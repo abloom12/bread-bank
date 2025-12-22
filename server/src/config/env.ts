@@ -6,19 +6,17 @@ const EnvSchema = z.object({
   CORS_ORIGIN: z.string().min(1),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive(),
-  SESSION_SECRET: z.string().min(32),
 
   // Auth
-  GOOGLE_CLIENT_ID: z.string().min(1),
-  GOOGLE_CLIENT_SECRET: z.string().min(1),
-  GOOGLE_REDIRECT_URL: z.url(),
+  BETTER_AUTH_SECRET: z.string().min(32),
+  BETTER_AUTH_URL: z.url(),
 
   // Database
-  DB_USER: z.string().default('ash'),
-  DB_PASSWORD: z.string().default(''),
-  DB_HOST: z.string().default('localhost'),
-  DB_NAME: z.string().default('bread_bank'),
-  DB_PORT: z.coerce.number().int().positive().default(5432),
+  DB_USER: z.string(),
+  DB_PASSWORD: z.string(),
+  DB_HOST: z.string(),
+  DB_NAME: z.string(),
+  DB_PORT: z.coerce.number().int().positive(),
 });
 
 export const env = EnvSchema.parse(process.env);

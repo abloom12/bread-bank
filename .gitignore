@@ -26,4 +26,4 @@ npm-debug.log*
 .claude/
 
 # Other
-__shadcn/
+__*/
