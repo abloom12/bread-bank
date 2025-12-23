@@ -62,11 +62,3 @@ type ApiResponse<T> =
   | { data: T; error: null }
   | { data: null; error: { message: string } };
 ```
-
-### Key Patterns
-
-- Server validates all env vars with Zod at startup (`server/src/config/env.ts`)
-- Vite proxies `/api/*` requests to the Express server in development
-- Client uses `apiGet<T>()` wrapper for fetch calls with error handling
-- Google OAuth support configured via environment variables
-- Express-session middleware handles auth state

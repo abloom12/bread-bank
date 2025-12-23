@@ -3,16 +3,16 @@ import { organization } from 'better-auth/plugins';
 import pool from '../db/db';
 
 export const auth = betterAuth({
-  database: pool,
   advanced: {
     database: {
       generateId: 'uuid',
     },
   },
-  plugins: [organization()],
+  database: pool,
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [organization()],
   session: {
     cookieCache: {
       enabled: true,

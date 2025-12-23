@@ -1,6 +1,8 @@
 import type { MigrationBuilder } from 'node-pg-migrate';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
+  pgm.createExtension('pgcrypto', { ifNotExists: true });
+
   // ============================================
   // Core Better Auth Tables
   // ============================================
@@ -24,7 +26,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     emailVerified: {
       type: 'boolean',
       notNull: true,
-      default: false,
     },
     image: {
       type: 'text',
@@ -41,37 +42,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     },
   });
 
-  // 2. Session table (includes activeOrganizationId for org plugin)
+  // 2. Session table
   pgm.createTable('session', {
     id: {
       type: 'uuid',
       primaryKey: true,
       default: pgm.func('gen_random_uuid()'),
-    },
-    expiresAt: {
-      type: 'timestamptz',
-      notNull: true,
-    },
-    token: {
-      type: 'text',
-      notNull: true,
-      unique: true,
-    },
-    createdAt: {
-      type: 'timestamptz',
-      notNull: true,
-      default: pgm.func('CURRENT_TIMESTAMP'),
-    },
-    updatedAt: {
-      type: 'timestamptz',
-      notNull: true,
-      default: pgm.func('CURRENT_TIMESTAMP'),
-    },
-    ipAddress: {
-      type: 'text',
-    },
-    userAgent: {
-      type: 'text',
     },
     userId: {
       type: 'uuid',
@@ -81,6 +57,30 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     },
     activeOrganizationId: {
       type: 'uuid',
+    },
+    token: {
+      type: 'text',
+      notNull: true,
+      unique: true,
+    },
+    expiresAt: {
+      type: 'timestamptz',
+      notNull: true,
+    },
+    ipAddress: {
+      type: 'text',
+    },
+    userAgent: {
+      type: 'text',
+    },
+    createdAt: {
+      type: 'timestamptz',
+      notNull: true,
+      default: pgm.func('CURRENT_TIMESTAMP'),
+    },
+    updatedAt: {
+      type: 'timestamptz',
+      notNull: true,
     },
   });
 
@@ -93,6 +93,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       primaryKey: true,
       default: pgm.func('gen_random_uuid()'),
     },
+    userId: {
+      type: 'uuid',
+      notNull: true,
+      references: 'user',
+      onDelete: 'CASCADE',
+    },
     accountId: {
       type: 'text',
       notNull: true,
@@ -101,19 +107,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'text',
       notNull: true,
     },
-    userId: {
-      type: 'uuid',
-      notNull: true,
-      references: 'user',
-      onDelete: 'CASCADE',
-    },
     accessToken: {
       type: 'text',
     },
     refreshToken: {
-      type: 'text',
-    },
-    idToken: {
       type: 'text',
     },
     accessTokenExpiresAt: {
@@ -123,6 +120,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'timestamptz',
     },
     scope: {
+      type: 'text',
+    },
+    idToken: {
       type: 'text',
     },
     password: {
@@ -136,7 +136,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     updatedAt: {
       type: 'timestamptz',
       notNull: true,
-      default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });
 
@@ -176,7 +175,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createIndex('verification', 'identifier', { name: 'verification_identifier_idx' });
 
   // ============================================
-  // Organization Plugin Tables (for households)
+  // Organization Plugin Tables
   // ============================================
 
   // 5. Organization table
@@ -184,6 +183,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     id: {
       type: 'uuid',
       primaryKey: true,
+      notNull: true,
       default: pgm.func('gen_random_uuid()'),
     },
     name: {
@@ -204,8 +204,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     createdAt: {
       type: 'timestamptz',
       notNull: true,
-      default: pgm.func('CURRENT_TIMESTAMP'),
     },
+  });
+
+  pgm.createIndex('organization', 'slug', {
+    name: 'organization_slug_uidx',
+    unique: true,
   });
 
   // 6. Member table
@@ -213,6 +217,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     id: {
       type: 'uuid',
       primaryKey: true,
+      notNull: true,
       default: pgm.func('gen_random_uuid()'),
     },
     userId: {
@@ -234,7 +239,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     createdAt: {
       type: 'timestamptz',
       notNull: true,
-      default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });
 
@@ -246,6 +250,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     id: {
       type: 'uuid',
       primaryKey: true,
+      notNull: true,
       default: pgm.func('gen_random_uuid()'),
     },
     email: {
@@ -284,7 +289,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   });
 
   pgm.createIndex('invitation', 'email', { name: 'invitation_email_idx' });
-  pgm.createIndex('invitation', 'organizationId', { name: 'invitation_organizationId_idx' });
+  pgm.createIndex('invitation', 'organizationId', {
+    name: 'invitation_organizationId_idx',
+  });
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {

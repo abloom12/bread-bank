@@ -1,39 +1,44 @@
 import 'dotenv/config';
+
+import { createServer } from 'http';
+
+import { createApp, setShuttingDown } from './app';
 import { config } from './config';
 import pool from './db/db';
-import { createApp } from './app';
 
 const app = createApp();
+const server = createServer(app);
 
-const server = app.listen(config.port, () => {
+function shutdown(signal: string) {
+  console.log(`${signal} received, starting graceful shutdown...`);
+
+  setShuttingDown(true);
+
+  server.close(async err => {
+    if (err) {
+      console.error('Error during server shutdown:', err);
+      process.exitCode = 1;
+    }
+
+    try {
+      await pool.end();
+    } catch (e) {
+      console.error('Error during server shutdown:', err);
+      process.exitCode = 1;
+    } finally {
+      process.exit();
+    }
+  });
+
+  setTimeout(() => {
+    console.error('Force exiting after timeout');
+    process.exit(1);
+  }, 15_000).unref();
+}
+
+server.listen(config.port, () => {
   console.log(`API running on http://localhost:${config.port}`);
 });
 
-function closeServer() {
-  return new Promise<void>((resolve, reject) => {
-    server.close(err => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
-}
-
-let shuttingDown = false;
-async function shutdown(signal: string) {
-  if (shuttingDown) return;
-  shuttingDown = true;
-
-  console.log(`${signal} received, shutting down...`);
-
-  try {
-    await closeServer();
-    await pool.end();
-    process.exit(0);
-  } catch (err) {
-    console.error('Shutdown error:', err);
-    process.exit(1);
-  }
-}
-
-process.on('SIGINT', () => void shutdown('SIGINT'));
-process.on('SIGTERM', () => void shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

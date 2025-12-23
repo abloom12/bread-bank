@@ -20,7 +20,8 @@
     "dev:client": "npm -w client run dev",
     "dev:server": "npm -w server run dev",
     "build": "npm run build:shared && npm run build:client && npm run build:server",
-    "typecheck": "npm run typecheck:shared && npm run typecheck:client && npm run typecheck:server"
+    "typecheck": "npm run typecheck:shared && npm run typecheck:client && npm run typecheck:server",
+    "auth:generate": "npm -w server run npx @better-auth/cli generate"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "0.6.1",
