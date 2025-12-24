@@ -14,6 +14,7 @@ function RootLayout() {
 
       <nav style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
         <Link to="/">Home</Link>
+        <Link to="/signup">Signup</Link>
         <Link to="/health">Health</Link>
       </nav>
 
