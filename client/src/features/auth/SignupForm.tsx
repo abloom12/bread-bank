@@ -12,7 +12,14 @@ const signupSchema = z.object({
   callbackURL: z.string().optional(),
 });
 
-type SignupSchema = z.infer<typeof signupSchema>;
+const signupFormSchema = signupSchema
+  .extend({
+    confirmPassword: z.string().min(8).max(32),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 export function SignupForm() {
   const form = useForm({
@@ -20,15 +27,17 @@ export function SignupForm() {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
       image: '',
       callbackURL: '',
-    } as SignupSchema,
+    } as z.infer<typeof signupFormSchema>,
     validators: {
-      onChange: signupSchema,
-      onSubmit: signupSchema,
+      onChange: signupFormSchema,
+      onSubmit: signupFormSchema,
     },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email({ ...value });
+      const { confirmPassword, ...rest } = value;
+      await authClient.signUp.email({ ...rest });
     },
   });
 
@@ -41,7 +50,7 @@ export function SignupForm() {
       }}
     >
       <form.Field
-        name="name"
+        name="password"
         children={field => (
           <>
             <input
@@ -55,6 +64,31 @@ export function SignupForm() {
           </>
         )}
       />
+      <form.Field
+        name="confirmPassword"
+        validators={{
+          onChangeListenTo: ['password'],
+          onChange: ({ value, fieldApi }) => {
+            if (value !== fieldApi.form.getFieldValue('password')) {
+              return 'Passwords do not match';
+            }
+            return undefined;
+          },
+        }}
+      >
+        {field => (
+          <>
+            <input
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={e => field.handleChange(e.target.value)}
+            />
+            {!field.state.meta.isValid && (
+              <em role="alert">{field.state.meta.errors.join(', ')}</em>
+            )}
+          </>
+        )}
+      </form.Field>
     </form>
   );
 }

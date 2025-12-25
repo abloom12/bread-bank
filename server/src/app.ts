@@ -12,7 +12,6 @@ import { auth } from './lib/auth';
 let shuttingDown = false;
 
 export function setShuttingDown(value: boolean) {
-  // Called by server.ts during SIGINT/SIGTERM so the app can start refusing requests.
   shuttingDown = value;
 }
 
@@ -39,7 +38,7 @@ export const createApp = () => {
       origin: (origin, cb) => {
         if (!origin) return cb(null, true);
         if (config.corsOrigin.includes(origin)) return cb(null, true);
-        // better: pass an AppError here once you wire errorMiddleware
+        // better pass an AppError here once you wire errorMiddleware
         return cb(new Error('Not allowed by CORS'));
       },
       credentials: true,
