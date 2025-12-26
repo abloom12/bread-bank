@@ -23,7 +23,7 @@ function shutdown(signal: string) {
     try {
       await pool.end();
     } catch (e) {
-      console.error('Error during server shutdown:', err);
+      console.error('Error during server shutdown:', e);
       process.exitCode = 1;
     } finally {
       process.exit();

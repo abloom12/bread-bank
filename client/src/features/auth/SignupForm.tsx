@@ -36,6 +36,7 @@ export function SignupForm() {
       onSubmit: signupFormSchema,
     },
     onSubmit: async ({ value }) => {
+      // TODO: handle error
       const { confirmPassword, ...rest } = value;
       await authClient.signUp.email({ ...rest });
     },
@@ -75,8 +76,7 @@ export function SignupForm() {
             return undefined;
           },
         }}
-      >
-        {field => (
+        children={field => (
           <>
             <input
               value={field.state.value}
@@ -88,7 +88,18 @@ export function SignupForm() {
             )}
           </>
         )}
-      </form.Field>
+      />
+      <form.Subscribe
+        selector={state => [state.canSubmit, state.isSubmitting]}
+        children={([canSubmit, isSubmitting]) => (
+          <button
+            type="submit"
+            disabled={!canSubmit || isSubmitting}
+          >
+            Sign Up
+          </button>
+        )}
+      />
     </form>
   );
 }
