@@ -18,6 +18,7 @@ const fieldVariants = cva('group/field', {
   },
 });
 
+// The core wrapper for a single field.
 function Field({
   className,
   orientation = 'vertical',
@@ -34,6 +35,7 @@ function Field({
   );
 }
 
+// Container that renders a semantic fieldset with spacing presets.
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
     <fieldset
@@ -48,6 +50,7 @@ function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   );
 }
 
+// Legend element for a FieldSet.
 function FieldLegend({
   className,
   variant = 'legend',
@@ -68,6 +71,7 @@ function FieldLegend({
   );
 }
 
+// Layout wrapper that stacks Field components
 function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -81,6 +85,8 @@ function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+// Flex column that groups control and descriptions when the label sits beside the control.
+// Not required if you have no description.
 function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

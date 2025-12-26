@@ -16,10 +16,12 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate:up": "node-pg-migrate up -m src/db/migrations",
     "migrate:down": "node-pg-migrate down -m src/db/migrations",
-    "migrate:create": "node-pg-migrate create -m src/db/migrations"
+    "migrate:create": "node-pg-migrate create -m src/db/migrations",
+    "betterAuth:generate": "npx @better-auth/cli generate"
   },
   "dependencies": {
     "@app/shared": "^0.0.1",
+    "better-auth": "1.4.7",
     "cors": "2.8.5",
     "dotenv": "17.2.3",
     "express": "5.2.1",

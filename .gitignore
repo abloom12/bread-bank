@@ -26,4 +26,5 @@ npm-debug.log*
 .claude/
 
 # Other
-__shadcn/
+__*/
+better-auth*/

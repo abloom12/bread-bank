@@ -1,10 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiGet } from '@/lib/api';
 
 export function HealthPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['api-health'],
-    queryFn: () => apiGet<{ ok: boolean }>('/api/health'),
+    queryFn: async () => {
+      const res = await fetch('/api/health');
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`);
+      }
+      return await res.json();
+    },
   });
 
   if (isLoading) return <div>Checking API pulse...</div>;
