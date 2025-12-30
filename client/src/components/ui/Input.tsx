@@ -9,7 +9,7 @@ function Input({ type, className, ...props }: React.ComponentProps<'input'>) {
       className={cn(
         'border bg-transparent text-base outline-none',
         'h-9 w-full min-w-0 rounded-md px-3 py-1',
-        'transition-color',
+        'transition-colors',
         className,
       )}
       {...props}

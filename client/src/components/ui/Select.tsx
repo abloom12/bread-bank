@@ -8,7 +8,7 @@ function Select({ className, ...props }: React.ComponentProps<'select'>) {
       className={cn(
         'border bg-transparent text-base outline-none',
         'h-9 w-full min-w-0 rounded-md px-3 py-1',
-        'transition-color',
+        'transition-colors',
         className,
       )}
       {...props}

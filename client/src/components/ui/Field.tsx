@@ -74,16 +74,13 @@ function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
 
 function FieldError({
   className,
-  children,
   errors,
   ...props
 }: React.ComponentProps<'div'> & {
-  errors?: Array<{ message?: string } | undefined>;
+  errors?: Array<string | undefined>;
 }) {
   const content = React.useMemo(() => {
-    if (children) return children;
-
-    const messages = (errors ?? []).map(e => e?.message).filter((m): m is string => !!m);
+    const messages = (errors ?? []).filter((m): m is string => !!m);
 
     if (!messages.length) return null;
 
@@ -100,13 +97,15 @@ function FieldError({
         ))}
       </ul>
     );
-  }, [children, errors]);
+  }, [errors]);
 
   if (!content) return null;
 
   return (
     <div
       role="alert"
+      aria-live="polite"
+      aria-atomic="true"
       data-slot="field-error"
       className={cn('text-destructive text-sm font-normal', className)}
       {...props}

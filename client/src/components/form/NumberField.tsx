@@ -8,19 +8,27 @@ import { Label } from '../ui/Label';
 
 function NumberField({ label }: { label: string }) {
   const field = useFieldContext<number>();
-
   const { errors, isTouched } = useStore(field.store, state => state.meta);
+
+  const errorId = `${field.name}-error`;
+  const hasErrors = isTouched && errors.length > 0;
 
   return (
     <Field>
-      <Label>{label}</Label>
+      <Label htmlFor={field.name}>{label}</Label>
       <Input
         type="number"
+        id={field.name}
         value={field.state.value}
+        aria-invalid={hasErrors}
+        aria-describedby={hasErrors ? errorId : undefined}
         onChange={e => field.handleChange(e.target.valueAsNumber)}
         onBlur={field.handleBlur}
       />
-      <FieldError errors={isTouched ? errors.map(message => ({ message })) : undefined} />
+      <FieldError
+        id={errorId}
+        errors={isTouched ? errors : undefined}
+      />
     </Field>
   );
 }

@@ -21,8 +21,9 @@ function SelectField({
 
   return (
     <Field>
-      <Label>{label}</Label>
+      <Label htmlFor={field.name}>{label}</Label>
       <Select
+        id={field.name}
         value={field.state.value}
         onChange={e => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
@@ -30,6 +31,7 @@ function SelectField({
         {placeholder && (
           <SelectOption
             value=""
+            aria-hidden="true"
             disabled
           >
             {placeholder}
@@ -44,7 +46,7 @@ function SelectField({
           </SelectOption>
         ))}
       </Select>
-      <FieldError errors={isTouched ? errors.map(message => ({ message })) : undefined} />
+      <FieldError errors={isTouched ? errors : undefined} />
     </Field>
   );
 }
