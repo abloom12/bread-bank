@@ -5,7 +5,12 @@ function Select({ className, ...props }: React.ComponentProps<'select'>) {
   return (
     <select
       data-slot="select"
-      className={cn('h-9', className)}
+      className={cn(
+        'border bg-transparent text-base outline-none',
+        'h-9 w-full min-w-0 rounded-md px-3 py-1',
+        'transition-color',
+        className,
+      )}
       {...props}
     />
   );

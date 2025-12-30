@@ -35,6 +35,7 @@ npm run auth:generate
 ## Architecture
 
 ### Client (`client/`)
+
 - **React 19** with **Vite 7** and SWC
 - **TanStack Router** - File-based routing in `src/routes/`
 - **TanStack Query** - Server state management
@@ -45,6 +46,7 @@ npm run auth:generate
 - API proxy: `/api` → `http://localhost:3000`
 
 ### Server (`server/`)
+
 - **Express 5** with TypeScript
 - **PostgreSQL** with pg client
 - **better-auth** for authentication (with admin and organization plugins)
@@ -52,6 +54,7 @@ npm run auth:generate
 - Environment validation via Zod in `src/config/env.ts`
 
 ### Shared (`packages/shared/`)
+
 - Shared TypeScript types and Zod schemas
 - Import as `@app/shared`
 
@@ -73,6 +76,7 @@ npm run auth:generate
 ## Environment Setup
 
 Copy `server/.env.example` to `server/.env` and configure:
+
 - `BETTER_AUTH_SECRET` (min 32 chars)
 - `BETTER_AUTH_URL`
 - `APP_ORIGIN`, `CORS_ORIGIN`
@@ -84,3 +88,23 @@ Copy `server/.env.example` to `server/.env` and configure:
 - `POST /api/auth/sign-in/email` - Login
 - `POST /api/auth/sign-out` - Logout
 - `GET /api/auth/session` - Current session
+
+## Tailwindcss Class Grouping
+
+1. Layout (flex, grid, positioning)
+2. Sizing (width, height, padding, margin)
+3. Typography (font, text)
+4. Colors/backgrounds
+5. Borders/rounded
+6. States (hover, focus, disabled)
+7. Pseudo-selectors and arbitrary variants
+
+```
+  className={cn(
+    'flex items-center gap-2',
+    'px-4 py-2 rounded-lg',
+    'bg-primary text-white',
+    'hover:bg-primary/90 focus:ring-2',
+    className
+  )}
+```

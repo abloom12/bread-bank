@@ -54,7 +54,9 @@ export function SignupForm() {
         name="password"
         children={field => (
           <>
+            <label htmlFor="password">Password</label>
             <input
+              id="password"
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={e => field.handleChange(e.target.value)}
@@ -78,7 +80,9 @@ export function SignupForm() {
         }}
         children={field => (
           <>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
+              id="confirmPassword"
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={e => field.handleChange(e.target.value)}
