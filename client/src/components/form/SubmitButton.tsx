@@ -3,7 +3,7 @@ import { useFormContext } from '@/hooks/form-context';
 import { Button } from '../ui/Button';
 import { Spinner } from '../ui/Spinner';
 
-function SubmitButton({ label, loadingLabel }: { label: string; loadingLabel: string }) {
+function SubmitButton({ label, loadingLabel }: { label: string; loadingLabel?: string }) {
   const form = useFormContext();
 
   return (

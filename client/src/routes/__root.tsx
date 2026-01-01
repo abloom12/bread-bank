@@ -9,20 +9,10 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>Bread Bank</h1>
-
-      <nav style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        <Link to="/">Home</Link>
-        <Link to="/signup">Signup</Link>
-        <Link to="/components">Components</Link>
-        <Link to="/health">Health</Link>
-      </nav>
-
+    <>
       <Outlet />
-
       <TanStackRouterDevtools />
-    </div>
+    </>
   );
 }
 

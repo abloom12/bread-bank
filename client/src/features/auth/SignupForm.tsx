@@ -1,20 +1,15 @@
-// import * as React from 'react';
-import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 
+import { useAppForm } from '@/hooks/form';
 import { authClient } from '@/lib/auth-client';
 
-const signupSchema = z.object({
-  name: z.string().min(1),
-  email: z.email(),
-  password: z.string().min(8).max(32),
-  image: z.string().optional(),
-  callbackURL: z.string().optional(),
-});
-
-const signupFormSchema = signupSchema
-  .extend({
+const signupSchema = z
+  .object({
+    name: z.string().min(1),
+    email: z.email(),
+    password: z.string().min(8).max(32),
     confirmPassword: z.string().min(8).max(32),
+    image: z.string().optional(),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -22,23 +17,20 @@ const signupFormSchema = signupSchema
   });
 
 export function SignupForm() {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       name: '',
       email: '',
       password: '',
       confirmPassword: '',
       image: '',
-      callbackURL: '',
-    } as z.infer<typeof signupFormSchema>,
+    } as z.infer<typeof signupSchema>,
     validators: {
-      onChange: signupFormSchema,
-      onSubmit: signupFormSchema,
+      onChange: signupSchema,
     },
     onSubmit: async ({ value }) => {
-      // TODO: handle error
       const { confirmPassword, ...rest } = value;
-      await authClient.signUp.email({ ...rest });
+      await authClient.signUp.email({ ...rest, callbackURL: '/' });
     },
   });
 
@@ -50,24 +42,29 @@ export function SignupForm() {
         void form.handleSubmit();
       }}
     >
-      <form.Field
-        name="password"
+      <form.AppField
+        name="name"
+        children={field => <field.InputField label="name" />}
+      />
+      <form.AppField
+        name="email"
         children={field => (
-          <>
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={e => field.handleChange(e.target.value)}
-            />
-            {!field.state.meta.isValid && (
-              <em role="alert">{field.state.meta.errors.join(', ')}</em>
-            )}
-          </>
+          <field.InputField
+            label="email"
+            type="email"
+          />
         )}
       />
-      <form.Field
+      <form.AppField
+        name="password"
+        children={field => (
+          <field.InputField
+            label="password"
+            type="password"
+          />
+        )}
+      />
+      <form.AppField
         name="confirmPassword"
         validators={{
           onChangeListenTo: ['password'],
@@ -79,31 +76,15 @@ export function SignupForm() {
           },
         }}
         children={field => (
-          <>
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              id="confirmPassword"
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={e => field.handleChange(e.target.value)}
-            />
-            {!field.state.meta.isValid && (
-              <em role="alert">{field.state.meta.errors.join(', ')}</em>
-            )}
-          </>
+          <field.InputField
+            label="confirm password"
+            type="password"
+          />
         )}
       />
-      <form.Subscribe
-        selector={state => [state.canSubmit, state.isSubmitting]}
-        children={([canSubmit, isSubmitting]) => (
-          <button
-            type="submit"
-            disabled={!canSubmit || isSubmitting}
-          >
-            Sign Up
-          </button>
-        )}
-      />
+      <form.AppForm>
+        <form.SubmitButton label="submit" />
+      </form.AppForm>
     </form>
   );
 }

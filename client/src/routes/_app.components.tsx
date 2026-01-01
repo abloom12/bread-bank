@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 
-export const Route = createFileRoute('/components')({
+export const Route = createFileRoute('/_app/components')({
   component: ComponentsShowcase,
 });
 

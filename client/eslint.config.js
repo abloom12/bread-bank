@@ -24,7 +24,7 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      "react/no-children-prop": [true, { allowFunctions: true }],
+      "react/no-children-prop": ['error', { allowFunctions: true }],
     },
   },
 ])
