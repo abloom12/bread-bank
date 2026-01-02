@@ -11,7 +11,7 @@ function RootLayout() {
   return (
     <>
       <Outlet />
-      <TanStackRouterDevtools />
+      {import.meta.env.DEV && <TanStackRouterDevtools />}
     </>
   );
 }
@@ -20,7 +20,7 @@ function NotFound() {
   return (
     <div>
       <h2>404</h2>
-      <p>That route doesn't exist. Your URL is doing freelance work.</p>
+      <p>That route does not exist. Your URL is doing freelance work.</p>
       <Link to="/">Go home</Link>
     </div>
   );

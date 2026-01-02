@@ -12,7 +12,6 @@ function SubmitButton({ label, loadingLabel }: { label: string; loadingLabel?: s
         <Button
           type="submit"
           aria-busy={isSubmitting}
-          aria-disabled={isSubmitting}
           disabled={isSubmitting}
         >
           {isSubmitting && <Spinner className="size-4" />}

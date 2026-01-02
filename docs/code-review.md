@@ -1,332 +1,436 @@
-# Client Code Review
+# Claude: Client Code Review - Starter Kit Additions
 
-**Review Date:** December 31, 2025
-**Scope:** `client/` folder - React frontend application
+## Current State Summary
 
----
-
-## Executive Summary
-
-The client codebase demonstrates a modern, well-structured React application using cutting-edge tooling (React 19, Vite 7, TanStack ecosystem). The architecture follows sensible patterns with feature-based organization and a solid component library foundation. However, there are several areas for improvement around code quality, accessibility, security, and consistency.
-
-**Overall Assessment:** Good foundation with room for polish
+The client is well-structured with TanStack Router, Query, and Form integration. You have a solid foundation with 12 UI components, 5 form field components, and basic auth forms.
 
 ---
 
-## Architecture & Structure
+## Priority 1: Essential Missing Boilerplate
 
-### Strengths
+### 1. Auth Session Hook & Context
 
-- **Modern Stack**: React 19, Vite 7, TanStack Router/Query/Form, Tailwind CSS 4, better-auth
-- **Feature-based Organization**: Clean separation with `features/{feature}/` pattern
-- **Component Library**: Well-structured UI primitives with CVA (class-variance-authority)
-- **Type Safety**: Strict TypeScript configuration with `noUnusedLocals`, `noUnusedParameters`
-- **Path Aliases**: Clean imports using `@/*` mapping
+**Problem:** No way to access current user/session state across the app.
 
-### Concerns
+**Add:** `lib/auth-client.ts` already exports the client, but you need a React hook for session state.
 
-- **Empty Files**: Several placeholder files exist (`tmp.tsx`, `LoginPage.tsx`, `SignupPage.tsx`, `login.schema.ts`) that should be removed or completed
-- **Auto-generated Files**: `routeTree.gen.ts` properly excluded from linting
-
----
-
-## Components Review
-
-### UI Components (`src/components/ui/`)
-
-#### Button.tsx
-**Quality: Good**
-- Uses CVA for variant management
-- Proper spread of props
-- Good use of `data-slot` for styling hooks
-- Missing: `outline` and `ghost` variants have empty styles (need implementation)
-- Consider: Adding `aria-disabled` for better accessibility
-
-#### Input.tsx
-**Quality: Good**
-- Clean, minimal implementation
-- Missing: Focus ring styles for keyboard navigation
-- Missing: Error state styling support
-
-#### Field.tsx
-**Quality: Excellent**
-- Comprehensive field composition (Field, FieldGroup, FieldContent, FieldDescription, FieldError)
-- Good accessibility with `role="alert"`, `aria-live="polite"`, `aria-atomic="true"` on FieldError
-- Smart deduplication of error messages
-- Good use of semantic HTML
-
-#### Label.tsx
-**Quality: Good**
-- Proper disabled state handling via parent group
-- Uses peer/group selectors effectively
-
-#### Select.tsx
-**Quality: Good**
-- Clean implementation
-- `SelectOptGroup` has redundant `cn(className)` call - could simplify
-
-#### Badge.tsx
-**Quality: Good**
-- Consistent with Button pattern using CVA
-
-#### Spinner.tsx
-**Quality: Good**
-- Proper `role="status"` and `aria-label` for accessibility
-
-#### Table.tsx
-**Quality: Good**
-- Comprehensive table component set
-- Good hover states and selection styling
-- Responsive with overflow handling
-
-#### ButtonGroup.tsx
-**Quality: Good**
-- Supports both horizontal and vertical orientations
-- Clean separator handling
-
-#### Separator.tsx
-**Quality: Good**
-- Proper ARIA handling for decorative vs semantic separators
-
-#### Textarea.tsx
-**Quality: Good**
-- Uses modern `field-sizing-content` CSS property
-- Missing: `data-slot` attribute for consistency
-
-### Form Components (`src/components/form/`)
-
-#### InputField.tsx
-**Quality: Excellent**
-- Proper accessibility with `aria-invalid` and `aria-describedby`
-- Clean field context integration
-- Supports multiple input types
-- Good error handling with touched state
-
-#### NumberField.tsx
-**Quality: Good**
-- Uses `valueAsNumber` correctly
-- Missing: `description` prop support (unlike InputField)
-- Consider: Step/min/max props for number inputs
-
-#### SelectField.tsx
-**Quality: Good**
-- Placeholder support with proper disabled state
-- Missing: `aria-describedby` for error states (inconsistent with InputField)
-
-#### TextareaField.tsx
-**Quality: Good**
-- Supports placeholder and rows
-- Missing: `aria-invalid` and `aria-describedby` (inconsistent with InputField)
-
-#### SubmitButton.tsx
-**Quality: Good**
-- Loading state with spinner
-- `aria-busy` and `aria-disabled` for accessibility
-- Consider: Using `disabled` alone might be sufficient - `aria-disabled` with `disabled` is redundant
-
----
-
-## Features Review
-
-### Auth Feature (`src/features/auth/`)
-
-#### LoginForm.tsx
-**Issues:**
-1. **Security**: Password max length of 32 is restrictive - modern passwords can be longer
-2. **Validation**: `z.string().min(1)` for email should use `z.email()` for proper validation
-3. **Hardcoded Label**: Labels are lowercase ("email", "password") - should be properly capitalized
-4. **Error Handling**: No error handling for `authClient.signIn.email()` failures
-5. **User Feedback**: No loading state feedback or success/error messages displayed
-6. **RememberMe**: Field exists in schema but not rendered in form
-
-#### SignupForm.tsx
-**Issues:**
-1. **Duplicate Validation**: Password matching is validated both in schema `.refine()` and in field-level validator - redundant
-2. **Error Message Inconsistency**: Schema says "Passwords don't match", field validator says "Passwords do not match"
-3. **Error Handling**: No error handling for `authClient.signUp.email()` failures
-4. **User Feedback**: No success/error feedback
-5. **Security**: Consider adding password strength indicator
-6. **Labels**: Inconsistent capitalization ("Confirm Password" vs "password")
-
-#### Empty Files
-- `LoginPage.tsx` - Empty, should be removed or implemented
-- `SignupPage.tsx` - Empty, should be removed or implemented
-- `login.schema.ts` - Just a commented import, should be removed (schema is inline in LoginForm)
-- `signup.schema.ts` - Empty/stub, should be removed
-
-### Health Feature (`src/features/health/`)
-
-#### health.tsx
-**Quality: Good**
-- Simple TanStack Query usage
-- Missing: TypeScript type for the response
-- Consider: More informative loading/error states
-- Consider: Retry logic or refresh button
-
----
-
-## Hooks Review
-
-### form.ts
-**Quality: Excellent**
-- Clean TanStack Form hook setup
-- Proper registration of field and form components
-- Uses form context pattern correctly
-
-### form-context.ts
-**Quality: Good**
-- Minimal and correct context setup
-
----
-
-## Routes Review
-
-### __root.tsx
-**Issues:**
-1. **Inline Styles**: Uses `style={{ padding: 16 }}` instead of Tailwind classes
-2. **Navigation**: Missing login link in navigation
-3. **Styling**: Very basic styling, not production-ready
-4. **DevTools**: Router devtools included - should be conditionally rendered in development only
-
-### index.tsx
-**Quality: Minimal**
-- Just renders "Homepage" - placeholder
-
-### login.tsx / signup.tsx
-**Quality: Good**
-- Clean route setup, delegates to form components
-
-### health.tsx
-**Quality: Good**
-- Simple delegation to HealthPage component
-
-### components.tsx
-**Quality: Good**
-- Useful component showcase for development
-- Consider: Should this be excluded from production builds?
-
----
-
-## Configuration Review
-
-### vite.config.ts
-**Quality: Good**
-- Proper plugin ordering
-- Path alias configured
-- API proxy for development
-
-### eslint.config.js
-**Issues:**
-1. **Invalid Rule Config**: Line 27 uses `true` instead of `"error"` or `"warn"`
-2. **Missing Plugin**: `react/no-children-prop` rule requires `eslint-plugin-react` which isn't installed
-3. **Rule Configuration**: Should be `"error"` or `"warn"`, not boolean `true`
-
-```js
-// Current (incorrect)
-"react/no-children-prop": [true, { allowFunctions: true }],
-
-// Should be
-"react/no-children-prop": ["error", { allowFunctions: true }],
+```ts
+// lib/auth-client.ts - add exports
+export const { useSession, signOut, signIn, signUp } = authClient;
 ```
 
-### tsconfig.app.json
-**Quality: Excellent**
-- Strict mode enabled
-- Modern ES2022 target
-- Proper bundler mode configuration
+**Usage:**
 
-### index.html
-**Issues:**
-1. **Title**: Generic "client" title - should be "Bread Bank"
-2. **Meta Tags**: Missing description, OpenGraph tags
-
-### index.css
-**Quality: Good**
-- Clean Tailwind 4 setup with CSS variables
-- Using modern OKLCH color space
-- Only defines dark theme - missing light theme variables
+```tsx
+const { data: session, isPending } = useSession();
+```
 
 ---
 
-## Security Considerations
+### 2. Protected Route Layout
 
-1. **Auth Client**: Hardcoded `baseURL: 'http://localhost:3000'` in `auth-client.ts` - should use environment variable
-2. **CSRF**: Relies on better-auth's built-in protection - verify configuration
-3. **Password Policy**: Consider enforcing stronger password requirements
-4. **Error Messages**: Auth error handling should not leak information about valid emails
+**Problem:** No route guards to prevent unauthenticated access to protected pages.
 
----
+**Add:** Create `routes/_protected.tsx` layout route that checks auth state.
 
-## Accessibility Issues
+```tsx
+// routes/_protected.tsx
+import { createFileRoute, redirect, Outlet } from '@tanstack/react-router';
+import { authClient } from '@/lib/auth-client';
 
-1. **Root Layout**: Missing skip-to-content link
-2. **Form Labels**: Inconsistent capitalization
-3. **Color Contrast**: Dark theme only - verify WCAG compliance
-4. **Keyboard Navigation**: Input focus states need enhancement
-5. **Error Announcements**: Good use of aria-live on FieldError
+export const Route = createFileRoute('/_protected')({
+  beforeLoad: async () => {
+    const { data: session } = await authClient.getSession();
+    if (!session) {
+      throw redirect({ to: '/login', search: { redirect: location.pathname } });
+    }
+    return { user: session.user };
+  },
+  component: () => <Outlet />,
+});
+```
 
----
-
-## Performance Considerations
-
-1. **Code Splitting**: Enabled via TanStack Router's `autoCodeSplitting`
-2. **Bundle Size**: lucide-react should use tree-shaking (verify build output)
-3. **DevTools**: React Query Devtools and TanStack Devtools included in production bundle - should be dev-only
-
----
-
-## Recommendations
-
-### Critical (Fix Before Production)
-
-1. Add error handling to auth form submissions
-2. Fix ESLint config rule syntax
-3. Remove or conditionally render devtools in production
-4. Set auth client baseURL from environment variable
-5. Remove empty/placeholder files
-
-### High Priority
-
-1. Add proper form validation feedback (success/error messages)
-2. Implement missing button variants (outline, ghost)
-3. Add focus ring styles for keyboard accessibility
-4. Fix label capitalization consistency
-5. Update HTML title and meta tags
-
-### Medium Priority
-
-1. Add light theme CSS variables
-2. Extract schemas to separate files for reusability
-3. Add TypeScript types for API responses
-4. Consistent aria-describedby across all form fields
-5. Replace inline styles in root layout with Tailwind
-
-### Low Priority
-
-1. Add password strength indicator
-2. Add skip-to-content link
-3. Consider extracting validation messages to constants
-4. Add loading skeleton components
-5. Add Textarea data-slot attribute for consistency
+Then nest protected routes: `_protected.dashboard.tsx`, `_protected.settings.tsx`, etc.
 
 ---
 
-## Files to Remove
+### 3. Guest-Only Route Layout
 
-- `src/components/tmp.tsx` (empty)
-- `src/features/auth/LoginPage.tsx` (empty)
-- `src/features/auth/SignupPage.tsx` (empty)
-- `src/features/auth/login.schema.ts` (just a commented import)
+**Problem:** Logged-in users can still access `/login` and `/signup`.
+
+**Add:** Create `routes/_guest.tsx` that redirects authenticated users away.
+
+```tsx
+// routes/_guest.tsx
+export const Route = createFileRoute('/_guest')({
+  beforeLoad: async () => {
+    const { data: session } = await authClient.getSession();
+    if (session) {
+      throw redirect({ to: '/' });
+    }
+  },
+  component: () => <Outlet />,
+});
+```
+
+Then move login/signup under it: `_guest.login.tsx`, `_guest.signup.tsx`.
 
 ---
 
-## Summary of Findings
+### 4. Environment Variables for Client
 
-| Category | Issues Found |
-|----------|--------------|
-| Critical | 5 |
-| High Priority | 5 |
-| Medium Priority | 5 |
-| Low Priority | 5 |
+**Problem:** `auth-client.ts` has hardcoded `baseURL: 'http://localhost:3000'`.
 
-The codebase shows good architectural decisions and modern tooling choices. The main areas needing attention are error handling in auth flows, accessibility consistency, and cleanup of placeholder files. The component library is well-structured and follows good patterns - just needs some completion and consistency improvements.
+**Fix:**
+
+```ts
+export const authClient = createAuthClient({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+});
+```
+
+**Add:** Create `client/.env.example`:
+
+```
+VITE_API_URL=http://localhost:3000
+```
+
+---
+
+### 5. Toast/Notification System
+
+**Problem:** No way to show success/error feedback to users (auth errors, form submissions, etc.).
+
+**Options:**
+
+- **Sonner** - Lightweight, good DX (`npm i sonner`)
+- **React Hot Toast** - Popular, simple
+- Build custom with CVA (more work)
+
+**Add:**
+
+- `components/ui/Toaster.tsx` - Provider component
+- Add to `main.tsx` or `__root.tsx`
+- Use in forms: `toast.error(error.message)`
+
+---
+
+### 6. Form Error Handling from Server
+
+**Problem:** LoginForm and SignupForm have `// TODO: handle errors` comments.
+
+**Pattern to add:**
+
+```tsx
+onSubmit: async ({ value }) => {
+  const { error } = await authClient.signIn.email({ ...value, callbackURL: '/' });
+  if (error) {
+    // Option A: Toast
+    toast.error(error.message);
+    // Option B: Set form error
+    form.setErrorMap({ onSubmit: error.message });
+  }
+},
+```
+
+---
+
+### 7. API Client / Fetch Wrapper
+
+**Problem:** No standardized way to make API calls with auth headers, error handling, etc.
+
+**Add:** `lib/api.ts`
+
+```ts
+export const api = {
+  get: <T>(url: string) => fetch(`/api${url}`).then(handleResponse<T>),
+  post: <T>(url: string, body: unknown) =>
+    fetch(`/api${url}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(handleResponse<T>),
+  // ... put, delete, patch
+};
+
+async function handleResponse<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    if (res.status === 401) {
+      // Handle unauthorized (redirect to login, etc.)
+    }
+    throw new Error(await res.text());
+  }
+  return res.json();
+}
+```
+
+---
+
+### 8. Query Keys Factory
+
+**Problem:** No organized structure for React Query cache keys.
+
+**Add:** `lib/query-keys.ts`
+
+```ts
+export const queryKeys = {
+  auth: {
+    session: ['auth', 'session'] as const,
+  },
+  users: {
+    all: ['users'] as const,
+    detail: (id: string) => ['users', id] as const,
+  },
+  // Add more as features grow
+};
+```
+
+---
+
+## Priority 2: Recommended Additions
+
+### 9. Logout Button Component
+
+**Problem:** No logout functionality in UI.
+
+**Add:** `components/LogoutButton.tsx` or add to navigation.
+
+```tsx
+import { authClient } from '@/lib/auth-client';
+import { useNavigate } from '@tanstack/react-router';
+
+export function LogoutButton() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    navigate({ to: '/login' });
+  };
+
+  return (
+    <Button
+      onClick={handleLogout}
+      variant="ghost"
+    >
+      Logout
+    </Button>
+  );
+}
+```
+
+---
+
+### 10. Loading/Pending UI for Route Transitions
+
+**Problem:** No visual feedback during route transitions.
+
+**Add to `__root.tsx`:**
+
+```tsx
+import { useRouterState } from '@tanstack/react-router';
+
+function RootLayout() {
+  const isLoading = useRouterState({ select: s => s.isLoading });
+
+  return (
+    <>
+      {isLoading && <LoadingBar />} {/* or Spinner at top */}
+      <Outlet />
+    </>
+  );
+}
+```
+
+---
+
+### 11. Error Boundary Component
+
+**Problem:** `RootError` is basic. Need reusable error boundary.
+
+**Add:** `components/ErrorBoundary.tsx` using React's error boundary pattern or `react-error-boundary` package.
+
+---
+
+### 12. CheckboxField Component
+
+**Problem:** Missing checkbox form field for "Remember me" in LoginForm and other boolean fields.
+
+**Add:** `components/form/CheckboxField.tsx`
+
+---
+
+### 13. Type-Safe Route Search Params
+
+**Problem:** No structure for handling query params like `?redirect=/dashboard`.
+
+**Add to route files:**
+
+```tsx
+const loginSearchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
+export const Route = createFileRoute('/login')({
+  validateSearch: loginSearchSchema,
+});
+```
+
+Then use `search.redirect` in `callbackURL`.
+
+---
+
+## Priority 3: Nice-to-Have Additions
+
+### 14. Additional UI Components
+
+Missing common components:
+
+- **Dialog/Modal** - For confirmations, forms in overlay
+- **DropdownMenu** - User menu, action menus
+- **Tabs** - Content organization
+- **Card** - Content containers
+- **Alert** - Inline notifications
+- **Avatar** - User profile images
+- **Skeleton** - Loading placeholders
+- **Tooltip** - Hover information
+
+---
+
+### 15. Dark Mode Support
+
+**Add:**
+
+- CSS variables for dark theme in `index.css`
+- Theme toggle component
+- Persist preference in localStorage
+- System preference detection
+
+---
+
+### 16. SEO/Meta Component
+
+**Add:** `components/Meta.tsx` for page titles and meta tags.
+
+```tsx
+// Or use TanStack Router's head management
+export const Route = createFileRoute('/about')({
+  head: () => ({
+    meta: [{ title: 'About | Bread Bank' }],
+  }),
+});
+```
+
+---
+
+### 17. Form Field: File Upload
+
+**Add:** `components/form/FileField.tsx` for image uploads (user avatar in signup).
+
+---
+
+### 18. Pagination Component
+
+**Add:** `components/ui/Pagination.tsx` for lists/tables.
+
+---
+
+### 19. Confirm Dialog Hook
+
+**Add:** `hooks/useConfirm.ts` for "Are you sure?" dialogs.
+
+```tsx
+const confirm = useConfirm();
+const handleDelete = async () => {
+  if (await confirm({ title: 'Delete?', description: '...' })) {
+    // proceed
+  }
+};
+```
+
+---
+
+## Code Quality Improvements
+
+### 20. Stricter TypeScript Config
+
+Consider enabling in `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  }
+}
+```
+
+---
+
+### 21. Form Components Missing Props
+
+**NumberField.tsx** - `min`, `max`, `step` props defined but not wired to input.
+
+**SelectField.tsx** - Consider adding `disabled` option support.
+
+---
+
+### 22. Consistent Error Messages
+
+Create `lib/errors.ts` with user-friendly error message mapping:
+
+```ts
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return 'Something went wrong';
+}
+```
+
+---
+
+## Implementation Order Recommendation
+
+1. **Session hook & protected routes** (unblocks auth flow)
+2. **Toast system** (enables error feedback)
+3. **Form error handling** (complete auth forms)
+4. **Environment variables** (deployment readiness)
+5. **API client** (standardize data fetching)
+6. **Logout button** (complete auth UX)
+7. **CheckboxField** (remember me checkbox)
+8. **Loading states** (polish)
+9. **Additional UI components** (as needed)
+
+---
+
+## Files to Create
+
+```
+client/src/
+├── components/
+│   ├── ui/
+│   │   ├── Toaster.tsx        # Toast provider
+│   │   ├── Dialog.tsx         # Modal component
+│   │   ├── Card.tsx           # Card container
+│   │   ├── Avatar.tsx         # User avatar
+│   │   └── Skeleton.tsx       # Loading placeholder
+│   ├── form/
+│   │   └── CheckboxField.tsx  # Boolean field
+│   ├── LogoutButton.tsx       # Sign out
+│   └── ErrorBoundary.tsx      # Error handling
+├── hooks/
+│   ├── useConfirm.ts          # Confirmation dialog
+│   └── useTheme.ts            # Dark mode toggle
+├── lib/
+│   ├── api.ts                 # Fetch wrapper
+│   ├── query-keys.ts          # React Query keys
+│   └── errors.ts              # Error utilities
+└── routes/
+    ├── _protected.tsx         # Auth guard layout
+    └── _guest.tsx             # Guest-only layout
+```
+
+---
+
+## Summary
+
+Your starter kit has a strong foundation. The critical gaps are around **auth state management** and **protected routes** - these should be the first additions. After that, a **toast system** and **form error handling** will complete the authentication flow. Everything else builds on top of these fundamentals.

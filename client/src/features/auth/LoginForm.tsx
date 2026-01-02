@@ -4,8 +4,8 @@ import { useAppForm } from '@/hooks/form';
 import { authClient } from '@/lib/auth-client';
 
 const loginSchema = z.object({
-  email: z.string().min(1),
-  password: z.string().min(8).max(32),
+  email: z.email(),
+  password: z.string().min(8).max(128),
   rememberMe: z.boolean().optional(),
 });
 
@@ -20,6 +20,7 @@ export function LoginForm() {
       onChange: loginSchema,
     },
     onSubmit: async ({ value }) => {
+      // TODO: handle errors
       await authClient.signIn.email({ ...value, callbackURL: '/' });
     },
   });

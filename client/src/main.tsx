@@ -23,11 +23,13 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
-      <TanStackDevtools
-        config={{ hideUntilHover: true }}
-        plugins={[formDevtoolsPlugin()]}
-      />
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      {import.meta.env.DEV && (
+        <TanStackDevtools
+          config={{ hideUntilHover: true }}
+          plugins={[formDevtoolsPlugin()]}
+        />
+      )}
     </QueryClientProvider>
   </StrictMode>,
 );

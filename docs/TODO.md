@@ -1,67 +1,31 @@
-# Client-Side Improvements
+### TODOS
 
-### Authentication & User Flow
+- Focus ring styles for keyboard navigation (input, textarea, select)
+- Error state styling support (input, textarea, select)
+- Consider enforcing stronger requirements and adding password strength indicator during signup
+- check out have i been powned plugin from better-auth
+- use shared/auth.ts values in client/ and server/
+- setup vite .env file and make sure auth-client.ts baseURL is not hardcoded, we will also add .evn varaibles for the target in server/src/lib/auth.ts.
 
-1. Complete the SignupForm - Only password fields are rendered; name/email/image fields are missing
-2. Add LoginForm + route - No login page exists yet
-3. Add auth state to UI - Session info not displayed anywhere (user menu, logged-in state)
-4. Protected routes - No auth guards for routes that should require login
+### Security
 
-### Core UX
+Do not leak info to potential hackers during login/singup.
 
-5. Toast/notification system - No feedback mechanism for success/error states
-6. Loading states - No skeleton loaders or consistent loading patterns
-7. Error boundaries - Only basic one at root level
-8. Root layout polish - Currently uses inline styles, needs proper nav/header component
+Bad error messages:
 
-### Missing Pages
+- Login: "No account found with this email" → attacker learns email doesn't exist
+- Login: "Incorrect password" → attacker learns email DOES exist
+- Signup: "Email already registered" → confirms email exists
 
-9. Dashboard page - No landing page after login
-10. Settings/profile page - Nowhere to manage user info
-11. 404 page styling - Currently just text
+Good error messages:
 
-### Infrastructure
+- Login: "Invalid email or password" → no info leaked
+- Password reset: "If an account exists, you'll receive a reset link" → no info leaked
 
-12. Environment-based auth URL - auth-client.ts has hardcoded localhost:3000
-13. Dark mode support - No theme switching
+# Prompt
 
-# Server Improvements
+I want you to go through my client code (inside client/ folder) and look for things we could add, this is a starter kit for my future projects so the more boilerplate stuff I can setup now the better. Once you are done please
 
-### Core Infrastructure
+save your review/plan in docs/code-review3.md
 
-1. Wire up error handling middleware - Exists but commented out in middleware/error.ts
-2. Complete request validation middleware - Partially implemented, not connected
-3. Add AppError class - Referenced but doesn't exist
-
-### API Features
-
-4. User profile endpoints - CRUD for user data beyond auth
-5. Organization management endpoints - Plugin enabled but no routes
-6. Audit/activity logging - No logging of user actions
-
-### Database
-
-7. Database seeding script - No way to populate dev data
-8. Enable pool error logging - Currently commented out in db.ts
-
-### DevEx
-
-9. API documentation - No OpenAPI/Swagger setup
-10. Integration tests - No test infrastructure
-
-# Shared Package Improvements
-
-The shared package is essentially empty right now (src/main.ts is blank, schemas/ dir is empty).
-
-### Types & Schemas to Centralize
-
-1. Auth schemas - Move signup/login validation to shared (currently duplicated or missing)
-2. API response types - Success/error envelope types
-3. Domain types - User, Session, Organization types
-4. Error types - AppError class, error code enums
-
-### Utilities
-
-5. Common validators - Email, password rules, etc.
-6. API route constants - Endpoint paths as constants
-7. Shared constants - Timeouts, limits, magic strings
+during this please ignore styling stuff as I know that needs work.
