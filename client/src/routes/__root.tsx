@@ -10,6 +10,7 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <>
+      <h1>Root Layout</h1>
       <Outlet />
       {import.meta.env.DEV && <TanStackRouterDevtools />}
     </>
@@ -21,7 +22,7 @@ function NotFound() {
     <div>
       <h2>404</h2>
       <p>That route does not exist. Your URL is doing freelance work.</p>
-      <Link to="/">Go home</Link>
+      {/* <Link to="/">Go home</Link> */}
     </div>
   );
 }
@@ -33,7 +34,7 @@ function RootError({ error }: { error: unknown }) {
     <div>
       <h2>Something broke</h2>
       <p>{message}</p>
-      <Link to="/">Back to safety</Link>
+      {/* <Link to="/">Back to safety</Link> */}
     </div>
   );
 }

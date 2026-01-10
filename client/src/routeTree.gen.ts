@@ -9,152 +9,108 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AppRouteImport } from './routes/_app'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppHealthRouteImport } from './routes/_app.health'
-import { Route as AppComponentsRouteImport } from './routes/_app.components'
+import { Route as guestRouteRouteImport } from './routes/(guest)/route'
+import { Route as appRouteRouteImport } from './routes/(app)/route'
+import { Route as guestSignupRouteImport } from './routes/(guest)/signup'
+import { Route as guestLoginRouteImport } from './routes/(guest)/login'
 
-const SignupRoute = SignupRouteImport.update({
+const guestRouteRoute = guestRouteRouteImport.update({
+  id: '/(guest)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const appRouteRoute = appRouteRouteImport.update({
+  id: '/(app)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const guestSignupRoute = guestSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => guestRouteRoute,
 } as any)
-const LoginRoute = LoginRouteImport.update({
+const guestLoginRoute = guestLoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppHealthRoute = AppHealthRouteImport.update({
-  id: '/health',
-  path: '/health',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppComponentsRoute = AppComponentsRouteImport.update({
-  id: '/components',
-  path: '/components',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => guestRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
-  '/components': typeof AppComponentsRoute
-  '/health': typeof AppHealthRoute
+  '/login': typeof guestLoginRoute
+  '/signup': typeof guestSignupRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
-  '/components': typeof AppComponentsRoute
-  '/health': typeof AppHealthRoute
+  '/login': typeof guestLoginRoute
+  '/signup': typeof guestSignupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/_app': typeof AppRouteWithChildren
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
-  '/_app/components': typeof AppComponentsRoute
-  '/_app/health': typeof AppHealthRoute
+  '/(app)': typeof appRouteRoute
+  '/(guest)': typeof guestRouteRouteWithChildren
+  '/(guest)/login': typeof guestLoginRoute
+  '/(guest)/signup': typeof guestSignupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/components' | '/health'
+  fullPaths: '/login' | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/components' | '/health'
-  id:
-    | '__root__'
-    | '/'
-    | '/_app'
-    | '/login'
-    | '/signup'
-    | '/_app/components'
-    | '/_app/health'
+  to: '/login' | '/signup'
+  id: '__root__' | '/(app)' | '/(guest)' | '/(guest)/login' | '/(guest)/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
+  appRouteRoute: typeof appRouteRoute
+  guestRouteRoute: typeof guestRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app': {
-      id: '/_app'
+    '/(guest)': {
+      id: '/(guest)'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AppRouteImport
+      preLoaderRoute: typeof guestRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/(app)': {
+      id: '/(app)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/health': {
-      id: '/_app/health'
-      path: '/health'
-      fullPath: '/health'
-      preLoaderRoute: typeof AppHealthRouteImport
-      parentRoute: typeof AppRoute
+    '/(guest)/signup': {
+      id: '/(guest)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof guestSignupRouteImport
+      parentRoute: typeof guestRouteRoute
     }
-    '/_app/components': {
-      id: '/_app/components'
-      path: '/components'
-      fullPath: '/components'
-      preLoaderRoute: typeof AppComponentsRouteImport
-      parentRoute: typeof AppRoute
+    '/(guest)/login': {
+      id: '/(guest)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof guestLoginRouteImport
+      parentRoute: typeof guestRouteRoute
     }
   }
 }
 
-interface AppRouteChildren {
-  AppComponentsRoute: typeof AppComponentsRoute
-  AppHealthRoute: typeof AppHealthRoute
+interface guestRouteRouteChildren {
+  guestLoginRoute: typeof guestLoginRoute
+  guestSignupRoute: typeof guestSignupRoute
 }
 
-const AppRouteChildren: AppRouteChildren = {
-  AppComponentsRoute: AppComponentsRoute,
-  AppHealthRoute: AppHealthRoute,
+const guestRouteRouteChildren: guestRouteRouteChildren = {
+  guestLoginRoute: guestLoginRoute,
+  guestSignupRoute: guestSignupRoute,
 }
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+const guestRouteRouteWithChildren = guestRouteRoute._addFileChildren(
+  guestRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AppRoute: AppRouteWithChildren,
-  LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
+  appRouteRoute: appRouteRoute,
+  guestRouteRoute: guestRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
