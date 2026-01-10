@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as guestRouteRouteImport } from './routes/(guest)/route'
 import { Route as appRouteRouteImport } from './routes/(app)/route'
+import { Route as appIndexRouteImport } from './routes/(app)/index'
 import { Route as guestSignupRouteImport } from './routes/(guest)/signup'
 import { Route as guestLoginRouteImport } from './routes/(guest)/login'
 
@@ -21,6 +22,11 @@ const guestRouteRoute = guestRouteRouteImport.update({
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
   getParentRoute: () => rootRouteImport,
+} as any)
+const appIndexRoute = appIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => appRouteRoute,
 } as any)
 const guestSignupRoute = guestSignupRouteImport.update({
   id: '/signup',
@@ -36,28 +42,37 @@ const guestLoginRoute = guestLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/login': typeof guestLoginRoute
   '/signup': typeof guestSignupRoute
+  '/': typeof appIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof guestLoginRoute
   '/signup': typeof guestSignupRoute
+  '/': typeof appIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/(app)': typeof appRouteRoute
+  '/(app)': typeof appRouteRouteWithChildren
   '/(guest)': typeof guestRouteRouteWithChildren
   '/(guest)/login': typeof guestLoginRoute
   '/(guest)/signup': typeof guestSignupRoute
+  '/(app)/': typeof appIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/signup'
+  fullPaths: '/login' | '/signup' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/signup'
-  id: '__root__' | '/(app)' | '/(guest)' | '/(guest)/login' | '/(guest)/signup'
+  to: '/login' | '/signup' | '/'
+  id:
+    | '__root__'
+    | '/(app)'
+    | '/(guest)'
+    | '/(guest)/login'
+    | '/(guest)/signup'
+    | '/(app)/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  appRouteRoute: typeof appRouteRoute
+  appRouteRoute: typeof appRouteRouteWithChildren
   guestRouteRoute: typeof guestRouteRouteWithChildren
 }
 
@@ -77,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/': {
+      id: '/(app)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof appIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(guest)/signup': {
       id: '/(guest)/signup'
       path: '/signup'
@@ -94,6 +116,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface appRouteRouteChildren {
+  appIndexRoute: typeof appIndexRoute
+}
+
+const appRouteRouteChildren: appRouteRouteChildren = {
+  appIndexRoute: appIndexRoute,
+}
+
+const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
+  appRouteRouteChildren,
+)
+
 interface guestRouteRouteChildren {
   guestLoginRoute: typeof guestLoginRoute
   guestSignupRoute: typeof guestSignupRoute
@@ -109,7 +143,7 @@ const guestRouteRouteWithChildren = guestRouteRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  appRouteRoute: appRouteRoute,
+  appRouteRoute: appRouteRouteWithChildren,
   guestRouteRoute: guestRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
