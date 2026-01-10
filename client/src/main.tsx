@@ -5,12 +5,12 @@ import './index.css';
 import { RouterProvider } from '@tanstack/react-router';
 import { router } from './lib/router.ts';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/query-client.ts';
+
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { formDevtoolsPlugin } from '@tanstack/react-form-devtools';
-
-const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

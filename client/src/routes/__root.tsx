@@ -1,4 +1,4 @@
-import { Outlet, Link, createRootRoute } from '@tanstack/react-router';
+import { Outlet, Link, createRootRoute, useRouterState } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 export const Route = createRootRoute({
@@ -8,6 +8,8 @@ export const Route = createRootRoute({
 });
 
 function RootLayout() {
+  const isLoading = useRouterState({ select: s => s.isLoading });
+
   return (
     <>
       <h1>Root Layout</h1>

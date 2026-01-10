@@ -3,7 +3,7 @@ import type { ApiResponse } from '@app/shared';
 import { env } from '@/config/env';
 import { router } from '@/lib/router';
 
-export class ApiError extends Error {
+class ApiRequestError extends Error {
   status: number;
   code?: string;
 
@@ -47,24 +47,24 @@ async function request<T>(
 
   if (response.status === 401) {
     router.navigate({ to: '/login' });
-    throw new ApiError(401, 'Unauthorized');
+    throw new ApiRequestError(401, 'Unauthorized');
   }
 
     let json: ApiResponse<T>;
     try {
       json = await response.json();
     } catch {
-      throw new ApiError(response.status, `Request failed with status ${response.status}`);
+      throw new ApiRequestError(response.status, `Request failed with status ${response.status}`);
     }
 
     if (json.error) {
-      throw new ApiError(response.status, json.error.message, json.error.code);
+      throw new ApiRequestError(response.status, json.error.message, json.error.code);
     }
 
     return json.data;
 }
 
-export const api = {
+const api = {
   get: <T>(path: string, options?: RequestOptions) =>
     request<T>('GET', path, undefined, options),
 
@@ -80,3 +80,5 @@ export const api = {
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>('DELETE', path, undefined, options),
 };
+
+export { ApiRequestError, api };

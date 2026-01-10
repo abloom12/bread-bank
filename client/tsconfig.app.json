@@ -23,6 +23,8 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    // "noUncheckedIndexedAccess": true,
+    // "exactOptionalPropertyTypes": true,
 
     /* Path aliases */
     "baseUrl": ".",
