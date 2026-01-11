@@ -6,10 +6,10 @@ export const Route = createFileRoute('/(app)')({
 
 function AppLayout() {
   return (
-    <div style={{ padding: 16 }}>
+    <div>
       <h1>Bread Bank</h1>
 
-      <nav style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+      <nav>
         <Link to="/">Home</Link>
         <Link to="/login">Login</Link>
         <Link to="/signup">Signup</Link>

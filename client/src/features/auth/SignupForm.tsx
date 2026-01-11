@@ -34,10 +34,25 @@ export function SignupForm() {
       onChange: signupSchema,
     },
     onSubmit: async ({ value }) => {
-      // TODO: handle errors
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { confirmPassword, ...rest } = value;
-      await authClient.signUp.email({ ...rest, callbackURL: '/' });
+      const { confirmPassword, ...reqBody } = value;
+
+      const { data, error } = await authClient.signUp.email(
+        { ...reqBody, callbackURL: '/' },
+        {
+          onRequest: ctx => {
+            // show loading
+          },
+          onSuccess: ctx => {
+            // redirect to to dashboard or sign in page
+          },
+          onError: ctx => {
+            // show error message
+          },
+        },
+      );
+
+      console.log({ data, error });
     },
   });
 
