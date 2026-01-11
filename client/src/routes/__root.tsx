@@ -1,4 +1,4 @@
-import { Outlet, Link, createRootRoute } from '@tanstack/react-router';
+import { Outlet, Link, createRootRoute, useRouterState } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 export const Route = createRootRoute({
@@ -8,20 +8,14 @@ export const Route = createRootRoute({
 });
 
 function RootLayout() {
+  const isLoading = useRouterState({ select: s => s.isLoading });
+
   return (
-    <div style={{ padding: 16 }}>
-      <h1>Bread Bank</h1>
-
-      <nav style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        <Link to="/">Home</Link>
-        <Link to="/signup">Signup</Link>
-        <Link to="/health">Health</Link>
-      </nav>
-
+    <>
+      <h1>Root Layout</h1>
       <Outlet />
-
-      <TanStackRouterDevtools />
-    </div>
+      {import.meta.env.DEV && <TanStackRouterDevtools />}
+    </>
   );
 }
 
@@ -29,8 +23,8 @@ function NotFound() {
   return (
     <div>
       <h2>404</h2>
-      <p>That route doesn't exist. Your URL is doing freelance work.</p>
-      <Link to="/">Go home</Link>
+      <p>That route does not exist. Your URL is doing freelance work.</p>
+      {/* <Link to="/">Go home</Link> */}
     </div>
   );
 }
@@ -42,7 +36,7 @@ function RootError({ error }: { error: unknown }) {
     <div>
       <h2>Something broke</h2>
       <p>{message}</p>
-      <Link to="/">Back to safety</Link>
+      {/* <Link to="/">Back to safety</Link> */}
     </div>
   );
 }

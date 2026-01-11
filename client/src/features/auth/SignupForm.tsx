@@ -1,44 +1,43 @@
-// import * as React from 'react';
-import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 
+import { useAppForm } from '@/hooks/form';
 import { authClient } from '@/lib/auth-client';
+
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password must be at most 128 characters')
+  .regex(/^\S+$/, 'Password must not contain spaces')
+  .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+  .regex(/[a-z]/, 'Password must contain a lowercase letter')
+  .regex(/[0-9]/, 'Password must contain a number')
+  .regex(/[^A-Za-z0-9]/, 'Password must contain a special character');
 
 const signupSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
-  password: z.string().min(8).max(32),
+  password: passwordSchema,
+  confirmPassword: passwordSchema,
   image: z.string().optional(),
-  callbackURL: z.string().optional(),
 });
 
-const signupFormSchema = signupSchema
-  .extend({
-    confirmPassword: z.string().min(8).max(32),
-  })
-  .refine(data => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
 export function SignupForm() {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       name: '',
       email: '',
       password: '',
       confirmPassword: '',
       image: '',
-      callbackURL: '',
-    } as z.infer<typeof signupFormSchema>,
+    } as z.infer<typeof signupSchema>,
     validators: {
-      onChange: signupFormSchema,
-      onSubmit: signupFormSchema,
+      onChange: signupSchema,
     },
     onSubmit: async ({ value }) => {
-      // TODO: handle error
+      // TODO: handle errors
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...rest } = value;
-      await authClient.signUp.email({ ...rest });
+      await authClient.signUp.email({ ...rest, callbackURL: '/' });
     },
   });
 
@@ -50,22 +49,29 @@ export function SignupForm() {
         void form.handleSubmit();
       }}
     >
-      <form.Field
-        name="password"
+      <form.AppField
+        name="name"
+        children={field => <field.InputField label="name" />}
+      />
+      <form.AppField
+        name="email"
         children={field => (
-          <>
-            <input
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={e => field.handleChange(e.target.value)}
-            />
-            {!field.state.meta.isValid && (
-              <em role="alert">{field.state.meta.errors.join(', ')}</em>
-            )}
-          </>
+          <field.InputField
+            label="email"
+            type="email"
+          />
         )}
       />
-      <form.Field
+      <form.AppField
+        name="password"
+        children={field => (
+          <field.InputField
+            label="password"
+            type="password"
+          />
+        )}
+      />
+      <form.AppField
         name="confirmPassword"
         validators={{
           onChangeListenTo: ['password'],
@@ -77,29 +83,15 @@ export function SignupForm() {
           },
         }}
         children={field => (
-          <>
-            <input
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={e => field.handleChange(e.target.value)}
-            />
-            {!field.state.meta.isValid && (
-              <em role="alert">{field.state.meta.errors.join(', ')}</em>
-            )}
-          </>
+          <field.InputField
+            label="confirm password"
+            type="password"
+          />
         )}
       />
-      <form.Subscribe
-        selector={state => [state.canSubmit, state.isSubmitting]}
-        children={([canSubmit, isSubmitting]) => (
-          <button
-            type="submit"
-            disabled={!canSubmit || isSubmitting}
-          >
-            Sign Up
-          </button>
-        )}
-      />
+      <form.AppForm>
+        <form.SubmitButton label="submit" />
+      </form.AppForm>
     </form>
   );
 }

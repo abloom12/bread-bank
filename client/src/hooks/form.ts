@@ -1,3 +1,23 @@
 import { createFormHook } from '@tanstack/react-form';
-import { lazy } from 'react';
-import { fieldContext, formContext, useFormContext } from './form-context.tsx';
+
+import { fieldContext, formContext } from './form-context';
+
+import { InputField } from '@/components/form/InputField';
+import { NumberField } from '@/components/form/NumberField';
+import { SelectField } from '@/components/form/SelectField';
+import { TextareaField } from '@/components/form/TextareaField';
+import { SubmitButton } from '@/components/form/SubmitButton';
+
+export const { useAppForm, withForm, withFieldGroup } = createFormHook({
+  fieldComponents: {
+    InputField,
+    NumberField,
+    SelectField,
+    TextareaField,
+  },
+  formComponents: {
+    SubmitButton,
+  },
+  fieldContext,
+  formContext,
+});
