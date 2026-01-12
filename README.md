@@ -46,59 +46,59 @@ A full-stack TypeScript monorepo starter using React 19, Express 5, and PostgreS
 
 ### Client
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| **React** | 19.2 | UI library |
-| **Vite** | 7.2 | Build tool & dev server |
-| **TanStack Router** | 1.140 | Type-safe file-based routing |
-| **TanStack Query** | 5.90 | Server state management |
-| **TanStack Form** | 1.27 | Form state management |
-| **TanStack Table** | 8.21 | Headless table utilities |
-| **TailwindCSS** | 4.1 | Utility-first CSS |
-| **better-auth** | 1.4 | Authentication client |
-| **Zod** | 4.1 | Schema validation |
-| **class-variance-authority** | 0.7 | Component variant styling |
-| **clsx** + **tailwind-merge** | - | Class name utilities |
-| **lucide-react** | 0.562 | Icon library |
-| **react-day-picker** | 9.13 | Date picker component |
-| **react-error-boundary** | 6.0 | Error boundary component |
+| Package                       | Version | Purpose                      |
+| ----------------------------- | ------- | ---------------------------- |
+| **React**                     | 19.2    | UI library                   |
+| **Vite**                      | 7.2     | Build tool & dev server      |
+| **TanStack Router**           | 1.140   | Type-safe file-based routing |
+| **TanStack Query**            | 5.90    | Server state management      |
+| **TanStack Form**             | 1.27    | Form state management        |
+| **TanStack Table**            | 8.21    | Headless table utilities     |
+| **TailwindCSS**               | 4.1     | Utility-first CSS            |
+| **better-auth**               | 1.4     | Authentication client        |
+| **Zod**                       | 4.1     | Schema validation            |
+| **class-variance-authority**  | 0.7     | Component variant styling    |
+| **clsx** + **tailwind-merge** | -       | Class name utilities         |
+| **lucide-react**              | 0.562   | Icon library                 |
+| **react-day-picker**          | 9.13    | Date picker component        |
+| **react-error-boundary**      | 6.0     | Error boundary component     |
 
 #### Dev Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| **TypeScript** | Type safety |
-| **Vitest** | Unit testing |
+| Package             | Purpose                 |
+| ------------------- | ----------------------- |
+| **TypeScript**      | Type safety             |
+| **Vitest**          | Unit testing            |
 | **Testing Library** | React component testing |
-| **ESLint** | Code linting |
-| **Prettier** | Code formatting |
+| **ESLint**          | Code linting            |
+| **Prettier**        | Code formatting         |
 
 ### Server
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| **Express** | 5.2 | Web framework |
-| **better-auth** | 1.4 | Authentication server |
-| **pg** | 8.16 | PostgreSQL client |
-| **node-pg-migrate** | 8.0 | Database migrations |
-| **Zod** | 4.1 | Schema validation |
-| **helmet** | 8.1 | Security headers |
-| **cors** | 2.8 | CORS middleware |
-| **morgan** | 1.10 | HTTP request logging |
-| **express-rate-limit** | 8.2 | Rate limiting |
-| **express-session** | 1.18 | Session middleware |
-| **jose** | 6.1 | JWT utilities |
-| **dotenv** | 17.2 | Environment variables |
+| Package                | Version | Purpose               |
+| ---------------------- | ------- | --------------------- |
+| **Express**            | 5.2     | Web framework         |
+| **better-auth**        | 1.4     | Authentication server |
+| **pg**                 | 8.16    | PostgreSQL client     |
+| **node-pg-migrate**    | 8.0     | Database migrations   |
+| **Zod**                | 4.1     | Schema validation     |
+| **helmet**             | 8.1     | Security headers      |
+| **cors**               | 2.8     | CORS middleware       |
+| **pino**               | 10.1    | Logging               |
+| **express-rate-limit** | 8.2     | Rate limiting         |
+| **express-session**    | 1.18    | Session middleware    |
+| **jose**               | 6.1     | JWT utilities         |
+| **dotenv**             | 17.2    | Environment variables |
 
 #### Dev Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| **TypeScript** | Type safety |
-| **tsx** | TypeScript execution & watch mode |
+| Package        | Purpose                           |
+| -------------- | --------------------------------- |
+| **TypeScript** | Type safety                       |
+| **tsx**        | TypeScript execution & watch mode |
 
 ### Shared
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| **Zod** | 4.1 | Shared schema definitions |
+| Package | Version | Purpose                   |
+| ------- | ------- | ------------------------- |
+| **Zod** | 4.1     | Shared schema definitions |
