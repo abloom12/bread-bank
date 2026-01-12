@@ -1,6 +1,8 @@
 import { Outlet, Link, createRootRoute, useRouterState } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
+import { Spinner } from '@/components/ui/Spinner';
+
 export const Route = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFound,
@@ -13,6 +15,7 @@ function RootLayout() {
   return (
     <>
       <Outlet />
+      {isLoading && <Spinner />}
       {import.meta.env.DEV && <TanStackRouterDevtools />}
     </>
   );
@@ -23,7 +26,7 @@ function NotFound() {
     <div>
       <h2>404</h2>
       <p>That route does not exist. Your URL is doing freelance work.</p>
-      {/* <Link to="/">Go home</Link> */}
+      <Link to="/">Go home</Link>
     </div>
   );
 }
@@ -34,8 +37,8 @@ function RootError({ error }: { error: unknown }) {
   return (
     <div>
       <h2>Something broke</h2>
-      <p>{message}</p>
-      {/* <Link to="/">Back to safety</Link> */}
+      <p>{import.meta.env.DEV ? message : 'Unknown error'}</p>
+      <Link to="/">Back to safety</Link>
     </div>
   );
 }
