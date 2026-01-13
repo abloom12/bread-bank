@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/cn';
 
-const fieldVariants = cva('group/field flex w-full gap-3', {
+const fieldVariants = cva('group/field flex w-full gap-2', {
   variants: {
     orientation: {
       vertical: 'flex-col *:w-full',
@@ -15,6 +15,7 @@ const fieldVariants = cva('group/field flex w-full gap-3', {
   },
 });
 
+// The core wrapper for a single field. Provides orientation control, invalid state styling, and spacing.
 function Field({
   className,
   orientation = 'vertical',
@@ -31,6 +32,21 @@ function Field({
   );
 }
 
+// Label styled for both direct inputs and nested Field children.
+function FieldLabel({ className, ...props }: React.ComponentProps<'label'>) {
+  return (
+    <label
+      data-slot="field-label"
+      className={cn(
+        'text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+// Layout wrapper that stacks Field components and enables container queries for responsive orientations.
 function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -44,6 +60,7 @@ function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+// Flex column that groups control and descriptions when the label sits beside the control. Not required if you have no description.
 function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
@@ -57,13 +74,14 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
+// Helper text slot that automatically balances long lines in horizontal layouts.
 function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p
       data-slot="field-description"
       className={cn(
-        'text-muted-foreground text-sm leading-normal font-normal group-has-data-[orientation=horizontal]/field:text-balance',
-        'last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5',
+        'text-muted-foreground text-sm leading-normal font-normal',
+        'last:mt-0 nth-last-2:-mt-1',
         '[&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4',
         className,
       )}
@@ -72,6 +90,7 @@ function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
+// Accessible error container that accepts children or an errors array (e.g., from react-hook-form).
 function FieldError({
   className,
   errors,
@@ -115,4 +134,4 @@ function FieldError({
   );
 }
 
-export { Field, FieldGroup, FieldContent, FieldDescription, FieldError };
+export { Field, FieldLabel, FieldGroup, FieldContent, FieldDescription, FieldError };

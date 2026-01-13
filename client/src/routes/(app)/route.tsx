@@ -16,10 +16,10 @@ export const Route = createFileRoute('/(app)')({
 function AppLayout() {
   return (
     <div>
-      <h1>Bread Bank</h1>
+      <h1>React - Express - Postgres</h1>
 
       <nav>
-        <Link to="/dashboard">Dashboard</Link>
+        <Link to="/">Home</Link>
       </nav>
 
       <Outlet />
