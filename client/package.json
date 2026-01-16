@@ -16,7 +16,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@app/shared": "^0.0.1",
+    "@app/shared": "0.0.1",
     "@tailwindcss/vite": "4.1.17",
     "@tanstack/react-devtools": "0.8.5",
     "@tanstack/react-form": "1.27.5",
@@ -31,9 +31,10 @@
     "clsx": "2.1.1",
     "lucide-react": "0.562.0",
     "react": "19.2.0",
-    "react-day-picker": "^9.13.0",
+    "react-day-picker": "9.13.0",
     "react-dom": "19.2.0",
     "react-error-boundary": "6.0.3",
+    "socket.io-client": "4.8.3",
     "tailwind-merge": "3.4.0",
     "tailwindcss": "4.1.17",
     "zod": "4.1.13"
@@ -51,7 +52,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react-swc": "4.2.2",
     "eslint": "9.39.1",
-    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.0.1",
     "eslint-plugin-react-refresh": "0.4.24",
     "globals": "16.5.0",

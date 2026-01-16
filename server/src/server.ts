@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 import { createApp, setShuttingDown } from './app';
 import { config } from './config';
@@ -8,6 +9,7 @@ import pool from './db/db';
 
 const app = createApp();
 const server = createServer(app);
+const io = new Server(server, {});
 
 function shutdown(signal: string) {
   console.log(`${signal} received, starting graceful shutdown...`);

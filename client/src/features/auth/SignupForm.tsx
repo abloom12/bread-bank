@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { useAppForm } from '@/hooks/form';
 import { authClient } from '@/lib/auth-client';
 
+import { FieldGroup } from '@/components/ui/Field';
+
 const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
@@ -64,46 +66,49 @@ export function SignupForm() {
         void form.handleSubmit();
       }}
     >
-      <form.AppField
-        name="name"
-        children={field => <field.InputField label="name" />}
-      />
-      <form.AppField
-        name="email"
-        children={field => (
-          <field.InputField
-            label="email"
-            type="email"
-          />
-        )}
-      />
-      <form.AppField
-        name="password"
-        children={field => (
-          <field.InputField
-            label="password"
-            type="password"
-          />
-        )}
-      />
-      <form.AppField
-        name="confirmPassword"
-        validators={{
-          onChangeListenTo: ['password'],
-          onChange: ({ value, fieldApi }) => {
-            if (value !== fieldApi.form.getFieldValue('password')) {
-              return 'Passwords do not match';
-            }
-            return undefined;
-          },
-        }}
-        children={field => (
-          <field.InputField
-            label="confirm password"
-            type="password"
-          />
-        )}
-      />
+      <FieldGroup>
+        <form.AppField
+          name="name"
+          children={field => <field.InputField label="name" />}
+        />
+        <form.AppField
+          name="email"
+          children={field => (
+            <field.InputField
+              label="email"
+              type="email"
+            />
+          )}
+        />
+        <form.AppField
+          name="password"
+          children={field => (
+            <field.InputField
+              label="password"
+              type="password"
+            />
+          )}
+        />
+        <form.AppField
+          name="confirmPassword"
+          validators={{
+            onChangeListenTo: ['password'],
+            onChange: ({ value, fieldApi }) => {
+              if (value !== fieldApi.form.getFieldValue('password')) {
+                return 'Passwords do not match';
+              }
+              return undefined;
+            },
+          }}
+          children={field => (
+            <field.InputField
+              label="confirm password"
+              type="password"
+            />
+          )}
+        />
+      </FieldGroup>
+
       <form.AppForm>
         <form.SubmitButton label="submit" />
       </form.AppForm>
