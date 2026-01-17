@@ -1,108 +1,131 @@
-## 1. Routing with TanStack Router
+# What to do
 
-### Route Structure
+1. Postmark vs Resend (postmark seems to be winner)
+2. Multer vs Busboy vs Express-FileUpload
+
+## 1. useSession() - React Components
 
 ```
-__root.tsx           # Root layout with navigation
-├── (app)/          # App routes (protected)
-│   ├── route.tsx   # Layout with nav
-│   └── index.tsx   # Home page
-└── (guest)/        # Guest routes (public)
-    ├── route.tsx   # Guest layout
-    ├── login.tsx   # Login page
-    └── signup.tsx  # Signup page
+// components/UserAvatar.tsx
+ import { authClient } from "@/lib/auth-client"
+
+export function UserAvatar() {
+ const { data: session, isPending } = authClient.useSession()
+
+    if (isPending) return <div>Loading...</div>
+
+    if (!session) return <a href="/login">Sign In</a>
+
+    return (
+      <div>
+        <img src={session.user.image} alt={session.user.name} />
+        <span>{session.user.name}</span>
+        <button onClick={() => authClient.signOut()}>Sign Out</button>
+      </div>
+    )
+
+}
 ```
 
-### Issues Found
+## 2. getSession() - TanStack Router beforeLoad
 
-1. **Route Protection Missing**: No actual auth guards preventing unauthorized access
-   - Guest routes should redirect authenticated users
-   - App routes should redirect unauthenticated users
-   - No `beforeLoad` hooks implemented
+```
+// routes/(app)/dashboard.tsx
+ import { createFileRoute, redirect } from "@tanstack/react-router"
+ import { authClient } from "@/lib/auth-client"
 
-2. **Root Layout Issues** (`__root.tsx`):
-   - Unused `isLoading` state from router
-   - Placeholder text ("Root Layout" and hardcoded error messages)
-   - Navigation logic doesn't consider auth state
+export const Route = createFileRoute("/(app)/dashboard")({
+ beforeLoad: async () => {
+ const { data: session } = await authClient.getSession()
 
-3. **App Layout Issues** (`(app)/route.tsx`):
-   - Uses inline styles instead of consistent approach
-   - Links to `/login` and `/signup` visible in protected route
-   - No logout button visible
+      if (!session) {
+        throw redirect({ to: "/login" })
+      }
 
-4. **Guest Route Wrapper** (`(guest)/route.tsx`):
-   - Placeholder text ("Hello (guest)!")
-   - No actual protection logic
+      return { user: session.user }
+    },
+    component: Dashboard,
 
-## 2. Authentication Handling
+})
 
-### lib/auth-client.ts
-
-```typescript
-export const authClient = createAuthClient({
-  baseURL: env.VITE_API_URL,
-});
+function Dashboard() {
+ const { user } = Route.useRouteContext()
+ return <h1>Welcome, {user.name}</h1>
+ }
 ```
 
-**Issues**:
+## 3. getSession() - TanStack Router layout (protect all child routes)
 
-- No custom error handlers
-- No session persistence logic
+```
+// routes/(app)/route.tsx
+ import { createFileRoute, redirect, Outlet } from "@tanstack/react-router"
+ import { authClient } from "@/lib/auth-client"
 
-### Auth Forms
+export const Route = createFileRoute("/(app)")({
+ beforeLoad: async () => {
+ const { data: session } = await authClient.getSession()
 
-**LoginForm.tsx Issues**:
+      if (!session) {
+        throw redirect({ to: "/login" })
+      }
 
-- **TODO**: "handle errors" - Auth errors not handled
-- No error display to user
-- `rememberMe` field unused
+      return { session }
+    },
+    component: () => <Outlet />,
 
-**SignupForm.tsx - Better Implementation**:
+})
+```
 
-- Still has **TODO**: "handle errors"
-- No navigation redirect after successful signup
+## 4. auth.api.getSession() - Express API Protection
 
-## 3. API Calls & Data Fetching
+```
+// server/src/features/users/users.routes.ts
+ import { Router } from "express"
+ import { auth } from "@/lib/auth" // your better-auth instance
 
-### lib/api.ts
+const router = Router()
 
-**Issues**:
+router.get("/api/users/profile", async (req, res) => {
+ const session = await auth.api.getSession({
+ headers: req.headers,
+ })
 
-- No request timeout
-- No retry logic at request level
-- No request interceptors
-- No logging/telemetry
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
 
-## 4. Potential Bugs & Issues
+    // session.user is available here
+    res.json({ user: session.user })
 
-### Critical
+})
 
-1. **Route Protection Missing** - Unauthenticated users can access app routes
-2. **Auth Error Handling** - "TODO: handle errors" in LoginForm and SignupForm
+export default router
+```
 
-### High Priority
+## 5. Express Middleware (reusable auth guard)
 
-1. **404 & Error Pages** - Placeholder content in RootLayout
-2. **Schema Files** - `login.schema.ts` and `signup.schema.ts` mostly empty
-3. **Unused State** - `isLoading` in root layout not used
+```
+// server/src/middleware/requireAuth.ts
+ import { auth } from "@/lib/auth"
+ import type { Request, Response, NextFunction } from "express"
 
-### Medium Priority
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+ const session = await auth.api.getSession({
+ headers: req.headers,
+ })
 
-1. **Inline Styles** - Mixed approaches in layout components
-2. **NumberField Props** - `step`, `min`, `max` accepted but unused
-3. **No Request Timeout** - API requests could hang indefinitely
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
 
-### Low Priority
+    // Attach to request for downstream handlers
+    req.session = session
+    next()
 
-1. **FileField Component** - Exists but is empty
-2. **CheckboxField Component** - Exists but is empty
-3. **Health Page** - Direct fetch instead of using `api` client
+}
 
-## 5. Security Considerations
-
-**Missing/Concerns**:
-
-- CSRF protection not visible (relies on SameSite cookies?)
-- No rate limiting UI on auth forms
-- No 2FA/MFA support
-- No password reset flow
+// Usage in routes:
+ router.get("/api/protected", requireAuth, (req, res) => {
+ res.json({ user: req.session.user })
+ })
+```

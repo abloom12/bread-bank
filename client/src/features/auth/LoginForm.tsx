@@ -21,7 +21,10 @@ export function LoginForm() {
     },
     onSubmit: async ({ value }) => {
       // TODO: handle errors
-      await authClient.signIn.email({ ...value, callbackURL: '/' });
+      const { error } = await authClient.signIn.email({ ...value, callbackURL: '/' });
+      if (error) {
+        // Set form-level error to display to user
+      }
     },
   });
 

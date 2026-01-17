@@ -1,13 +1,14 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
+import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import pinoHttp from 'pino-http';
 import rateLimit from 'express-rate-limit';
-import morgan from 'morgan';
 import { toNodeHandler } from 'better-auth/node';
 
 import { config } from './config';
 import { apiRouter } from './routes';
 import { auth } from './lib/auth';
+import { logger } from './lib/logger';
 
 let shuttingDown = false;
 
@@ -18,6 +19,13 @@ export function setShuttingDown(value: boolean) {
 export const createApp = () => {
   const app = express();
 
+  app.use(
+    pinoHttp({
+      logger,
+      autoLogging: true,
+    }),
+  );
+
   app.use((_req, res, next) => {
     if (!shuttingDown) return next();
     res
@@ -26,12 +34,24 @@ export const createApp = () => {
   });
 
   app.disable('x-powered-by');
-  app.use(morgan('combined'));
-  app.use(
-    helmet({
+
+  // app.use(
+  //   helmet({
+  //     contentSecurityPolicy: false,
+  //   }),
+  // );
+
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/auth/reference')) {
+      return helmet({
+        crossOriginResourcePolicy: false,
+        contentSecurityPolicy: false,
+      })(req, res, next);
+    }
+    return helmet({
       crossOriginResourcePolicy: false,
-    }),
-  );
+    })(req, res, next);
+  });
 
   app.use(
     cors({

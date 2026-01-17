@@ -1,18 +1,25 @@
 import { createFileRoute, Outlet, Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(app)')({
+  beforeLoad: async () => {
+    console.log('App layout route loaded');
+    // You can add authentication checks or data fetching here
+    // For example:
+    // const session = await authClient.getSession()
+    // if (session.data) {
+    //   throw redirect({ to: '/login' });
+    // }
+  },
   component: AppLayout,
 });
 
 function AppLayout() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>Bread Bank</h1>
+    <div>
+      <h1>React - Express - Postgres</h1>
 
-      <nav style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+      <nav>
         <Link to="/">Home</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/signup">Signup</Link>
       </nav>
 
       <Outlet />

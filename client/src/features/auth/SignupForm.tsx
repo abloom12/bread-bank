@@ -3,23 +3,8 @@ import { z } from 'zod';
 import { useAppForm } from '@/hooks/form';
 import { authClient } from '@/lib/auth-client';
 
-const passwordSchema = z
-  .string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(128, 'Password must be at most 128 characters')
-  .regex(/^\S+$/, 'Password must not contain spaces')
-  .regex(/[A-Z]/, 'Password must contain an uppercase letter')
-  .regex(/[a-z]/, 'Password must contain a lowercase letter')
-  .regex(/[0-9]/, 'Password must contain a number')
-  .regex(/[^A-Za-z0-9]/, 'Password must contain a special character');
-
-const signupSchema = z.object({
-  name: z.string().min(1),
-  email: z.email(),
-  password: passwordSchema,
-  confirmPassword: passwordSchema,
-  image: z.string().optional(),
-});
+import { Field, FieldGroup } from '@/components/ui/Field';
+import { signupSchema } from './signup.schema';
 
 export function SignupForm() {
   const form = useAppForm({
@@ -27,17 +12,34 @@ export function SignupForm() {
       name: '',
       email: '',
       password: '',
-      confirmPassword: '',
+      confirm: '',
       image: '',
     } as z.infer<typeof signupSchema>,
     validators: {
       onChange: signupSchema,
     },
     onSubmit: async ({ value }) => {
-      // TODO: handle errors
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { confirmPassword, ...rest } = value;
-      await authClient.signUp.email({ ...rest, callbackURL: '/' });
+      const { confirm, ...reqBody } = value;
+
+      // const a = authClient.useSession();
+
+      const { data, error } = await authClient.signUp.email(
+        { ...reqBody, callbackURL: '/' },
+        {
+          onRequest: ctx => {
+            // show loading
+          },
+          onSuccess: ctx => {
+            // redirect to to dashboard or sign in page
+          },
+          onError: ctx => {
+            // show error message
+          },
+        },
+      );
+
+      console.log({ data, error });
     },
   });
 
@@ -49,49 +51,45 @@ export function SignupForm() {
         void form.handleSubmit();
       }}
     >
-      <form.AppField
-        name="name"
-        children={field => <field.InputField label="name" />}
-      />
-      <form.AppField
-        name="email"
-        children={field => (
-          <field.InputField
-            label="email"
-            type="email"
-          />
-        )}
-      />
-      <form.AppField
-        name="password"
-        children={field => (
-          <field.InputField
-            label="password"
-            type="password"
-          />
-        )}
-      />
-      <form.AppField
-        name="confirmPassword"
-        validators={{
-          onChangeListenTo: ['password'],
-          onChange: ({ value, fieldApi }) => {
-            if (value !== fieldApi.form.getFieldValue('password')) {
-              return 'Passwords do not match';
-            }
-            return undefined;
-          },
-        }}
-        children={field => (
-          <field.InputField
-            label="confirm password"
-            type="password"
-          />
-        )}
-      />
-      <form.AppForm>
-        <form.SubmitButton label="submit" />
-      </form.AppForm>
+      <FieldGroup>
+        <form.AppField
+          name="name"
+          children={field => <field.InputField label="name" />}
+        />
+        <form.AppField
+          name="email"
+          children={field => (
+            <field.InputField
+              label="email"
+              type="email"
+            />
+          )}
+        />
+        <form.AppField
+          name="password"
+          children={field => (
+            <field.InputField
+              label="password"
+              type="password"
+            />
+          )}
+        />
+        <form.AppField
+          name="confirm"
+          children={field => (
+            <field.InputField
+              label="confirm password"
+              type="password"
+            />
+          )}
+        />
+
+        <form.AppForm>
+          <Field>
+            <form.SubmitButton label="submit" />
+          </Field>
+        </form.AppForm>
+      </FieldGroup>
     </form>
   );
 }

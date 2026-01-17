@@ -17,6 +17,7 @@ class ApiRequestError extends Error {
 
 type RequestOptions = Omit<RequestInit, 'method' | 'body'> & {
   params?: Record<string, string>;
+  timeout?: number;
 };
 
 async function request<T>(
@@ -25,7 +26,7 @@ async function request<T>(
   body?: unknown,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { params, ...fetchOptions } = options;
+  const { params, timeout = 30000, ...fetchOptions } = options;
 
   const url = new URL(path, env.VITE_API_URL);
   if (params) {
@@ -34,27 +35,35 @@ async function request<T>(
     });
   }
 
-  const response = await fetch(url, {
-    method,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...fetchOptions.headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    ...fetchOptions,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  if (response.status === 401) {
-    router.navigate({ to: '/login' });
-    throw new ApiRequestError(401, 'Unauthorized');
-  }
+  try {
+    const response = await fetch(url, {
+      method,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...fetchOptions.headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+      //...fetchOptions,
+    });
+
+    if (response.status === 401) {
+      router.navigate({ to: '/login' });
+      throw new ApiRequestError(401, 'Unauthorized');
+    }
 
     let json: ApiResponse<T>;
     try {
       json = await response.json();
     } catch {
-      throw new ApiRequestError(response.status, `Request failed with status ${response.status}`);
+      throw new ApiRequestError(
+        response.status,
+        `Request failed with status ${response.status}`,
+      );
     }
 
     if (json.error) {
@@ -62,7 +71,33 @@ async function request<T>(
     }
 
     return json.data;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
+
+// async function requestWithRetry<T>(
+//   method: string,
+//   path: string,
+//   body?: unknown,
+//   options: RequestOptions & { retries?: number } = {},
+// ): Promise<T> {
+//   const { retries = 3, ...rest } = options;
+
+//   for (let attempt = 0; attempt <= retries; attempt++) {
+//     try {
+//       return await request<T>(method, path, body, rest);
+//     } catch (error) {
+//       const isRetryable =
+//         error instanceof ApiRequestError && [503, 502, 504].includes(error.status);
+
+//       if (attempt === retries || !isRetryable) throw error;
+
+//       await new Promise(r => setTimeout(r, 1000 * (attempt + 1))); // backoff
+//     }
+//   }
+//   throw new Error('Unreachable');
+// }
 
 const api = {
   get: <T>(path: string, options?: RequestOptions) =>
