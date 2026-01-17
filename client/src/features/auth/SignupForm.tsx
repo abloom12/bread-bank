@@ -39,6 +39,8 @@ export function SignupForm() {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...reqBody } = value;
 
+      const a = authClient.useSession();
+
       const { data, error } = await authClient.signUp.email(
         { ...reqBody, callbackURL: '/' },
         {

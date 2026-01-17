@@ -34,11 +34,24 @@ export const createApp = () => {
   });
 
   app.disable('x-powered-by');
-  app.use(
-    helmet({
+
+  // app.use(
+  //   helmet({
+  //     contentSecurityPolicy: false,
+  //   }),
+  // );
+
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/auth/reference')) {
+      return helmet({
+        crossOriginResourcePolicy: false,
+        contentSecurityPolicy: false,
+      })(req, res, next);
+    }
+    return helmet({
       crossOriginResourcePolicy: false,
-    }),
-  );
+    })(req, res, next);
+  });
 
   app.use(
     cors({

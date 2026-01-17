@@ -1,5 +1,5 @@
 import { betterAuth } from 'better-auth';
-import { admin, organization } from 'better-auth/plugins';
+import { admin, haveIBeenPwned, organization, openAPI } from 'better-auth/plugins';
 import pool from '../db/db';
 
 // For production:
@@ -7,6 +7,10 @@ import pool from '../db/db';
 // trustedOrigins: [
 //   process.env.APP_ORIGIN, // e.g., "https://yourdomain.com"
 // ],
+
+// Plugins to look into:
+// captcha plugin
+//
 
 export const auth = betterAuth({
   advanced: {
@@ -20,7 +24,7 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     maxPasswordLength: 128,
   },
-  plugins: [admin(), organization()],
+  plugins: [admin(), organization(), haveIBeenPwned(), openAPI()],
   session: {
     cookieCache: {
       enabled: true,
