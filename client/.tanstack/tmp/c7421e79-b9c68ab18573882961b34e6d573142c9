@@ -1,9 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(auth)/_auth/signup')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
+<<<<<<<< HEAD:client/.tanstack/tmp/c7421e79-b9c68ab18573882961b34e6d573142c9
   return <div>Hello "/(auth)/_auth/signup"!</div>
+========
+  return <div>Landing Page - App Overview</div>;
+>>>>>>>> origin/main:client/src/routes/index.tsx
 }

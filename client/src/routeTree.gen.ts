@@ -8,78 +8,88 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as ComponentsRouteImport } from './routes/components'
-import { Route as guestRouteRouteImport } from './routes/(guest)/route'
-import { Route as appRouteRouteImport } from './routes/(app)/route'
-import { Route as appIndexRouteImport } from './routes/(app)/index'
-import { Route as guestSignupRouteImport } from './routes/(guest)/signup'
-import { Route as guestLoginRouteImport } from './routes/(guest)/login'
-import { Route as appDashboardRouteImport } from './routes/(app)/dashboard'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as ComponentsRouteImport } from './routes/components';
+import { Route as guestRouteRouteImport } from './routes/(guest)/route';
+import { Route as appRouteRouteImport } from './routes/(app)/route';
+import { Route as appIndexRouteImport } from './routes/(app)/index';
+import { Route as guestSignupRouteImport } from './routes/(guest)/signup';
+import { Route as guestLoginRouteImport } from './routes/(guest)/login';
+import { Route as appDashboardRouteImport } from './routes/(app)/dashboard';
 
 const ComponentsRoute = ComponentsRouteImport.update({
   id: '/components',
   path: '/components',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const guestRouteRoute = guestRouteRouteImport.update({
   id: '/(guest)',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const appIndexRoute = appIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => appRouteRoute,
-} as any)
+} as any);
 const guestSignupRoute = guestSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => guestRouteRoute,
-} as any)
+} as any);
 const guestLoginRoute = guestLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => guestRouteRoute,
-} as any)
+} as any);
 const appDashboardRoute = appDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => appRouteRoute,
-} as any)
+} as any);
+const guestSignupRoute = guestSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => guestRouteRoute,
+} as any);
+const guestLoginRoute = guestLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => guestRouteRoute,
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/components': typeof ComponentsRoute
-  '/dashboard': typeof appDashboardRoute
-  '/login': typeof guestLoginRoute
-  '/signup': typeof guestSignupRoute
-  '/': typeof appIndexRoute
+  '/components': typeof ComponentsRoute;
+  '/dashboard': typeof appDashboardRoute;
+  '/login': typeof guestLoginRoute;
+  '/signup': typeof guestSignupRoute;
+  '/': typeof appIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/components': typeof ComponentsRoute
-  '/dashboard': typeof appDashboardRoute
-  '/login': typeof guestLoginRoute
-  '/signup': typeof guestSignupRoute
-  '/': typeof appIndexRoute
+  '/components': typeof ComponentsRoute;
+  '/dashboard': typeof appDashboardRoute;
+  '/login': typeof guestLoginRoute;
+  '/signup': typeof guestSignupRoute;
+  '/': typeof appIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/(app)': typeof appRouteRouteWithChildren
-  '/(guest)': typeof guestRouteRouteWithChildren
-  '/components': typeof ComponentsRoute
-  '/(app)/dashboard': typeof appDashboardRoute
-  '/(guest)/login': typeof guestLoginRoute
-  '/(guest)/signup': typeof guestSignupRoute
-  '/(app)/': typeof appIndexRoute
+  '__root__': typeof rootRouteImport;
+  '/(app)': typeof appRouteRouteWithChildren;
+  '/(guest)': typeof guestRouteRouteWithChildren;
+  '/components': typeof ComponentsRoute;
+  '/(app)/dashboard': typeof appDashboardRoute;
+  '/(guest)/login': typeof guestLoginRoute;
+  '/(guest)/signup': typeof guestSignupRoute;
+  '/(app)/': typeof appIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/components' | '/dashboard' | '/login' | '/signup' | '/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/components' | '/dashboard' | '/login' | '/signup' | '/'
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: '/components' | '/dashboard' | '/login' | '/signup' | '/';
+  fileRoutesByTo: FileRoutesByTo;
+  to: '/components' | '/dashboard' | '/login' | '/signup' | '/';
   id:
     | '__root__'
     | '/(app)'
@@ -88,102 +98,114 @@ export interface FileRouteTypes {
     | '/(app)/dashboard'
     | '/(guest)/login'
     | '/(guest)/signup'
-    | '/(app)/'
-  fileRoutesById: FileRoutesById
+    | '/(app)/';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  appRouteRoute: typeof appRouteRouteWithChildren
-  guestRouteRoute: typeof guestRouteRouteWithChildren
-  ComponentsRoute: typeof ComponentsRoute
+  appRouteRoute: typeof appRouteRouteWithChildren;
+  guestRouteRoute: typeof guestRouteRouteWithChildren;
+  ComponentsRoute: typeof ComponentsRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/components': {
-      id: '/components'
-      path: '/components'
-      fullPath: '/components'
-      preLoaderRoute: typeof ComponentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/components';
+      path: '/components';
+      fullPath: '/components';
+      preLoaderRoute: typeof ComponentsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/(guest)': {
-      id: '/(guest)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof guestRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/(guest)';
+      path: '';
+      fullPath: '';
+      preLoaderRoute: typeof guestRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/(app)': {
-      id: '/(app)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof appRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/(app)';
+      path: '';
+      fullPath: '';
+      preLoaderRoute: typeof appRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/(app)/': {
-      id: '/(app)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof appIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
+      id: '/(app)/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof appIndexRouteImport;
+      parentRoute: typeof appRouteRoute;
+    };
     '/(guest)/signup': {
-      id: '/(guest)/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof guestSignupRouteImport
-      parentRoute: typeof guestRouteRoute
-    }
+      id: '/(guest)/signup';
+      path: '/signup';
+      fullPath: '/signup';
+      preLoaderRoute: typeof guestSignupRouteImport;
+      parentRoute: typeof guestRouteRoute;
+    };
     '/(guest)/login': {
-      id: '/(guest)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof guestLoginRouteImport
-      parentRoute: typeof guestRouteRoute
-    }
+      id: '/(guest)/login';
+      path: '/login';
+      fullPath: '/login';
+      preLoaderRoute: typeof guestLoginRouteImport;
+      parentRoute: typeof guestRouteRoute;
+    };
     '/(app)/dashboard': {
-      id: '/(app)/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof appDashboardRouteImport
-      parentRoute: typeof appRouteRoute
-    }
+      id: '/(app)/dashboard';
+      path: '/dashboard';
+      fullPath: '/dashboard';
+      preLoaderRoute: typeof appDashboardRouteImport;
+      parentRoute: typeof appRouteRoute;
+    };
+    '/(guest)/signup': {
+      id: '/(guest)/signup';
+      path: '/signup';
+      fullPath: '/signup';
+      preLoaderRoute: typeof guestSignupRouteImport;
+      parentRoute: typeof guestRouteRoute;
+    };
+    '/(guest)/login': {
+      id: '/(guest)/login';
+      path: '/login';
+      fullPath: '/login';
+      preLoaderRoute: typeof guestLoginRouteImport;
+      parentRoute: typeof guestRouteRoute;
+    };
   }
 }
 
 interface appRouteRouteChildren {
-  appDashboardRoute: typeof appDashboardRoute
-  appIndexRoute: typeof appIndexRoute
+  appDashboardRoute: typeof appDashboardRoute;
+  appIndexRoute: typeof appIndexRoute;
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
   appDashboardRoute: appDashboardRoute,
   appIndexRoute: appIndexRoute,
-}
+};
 
-const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
-  appRouteRouteChildren,
-)
+const appRouteRouteWithChildren = appRouteRoute._addFileChildren(appRouteRouteChildren);
 
 interface guestRouteRouteChildren {
-  guestLoginRoute: typeof guestLoginRoute
-  guestSignupRoute: typeof guestSignupRoute
+  guestLoginRoute: typeof guestLoginRoute;
+  guestSignupRoute: typeof guestSignupRoute;
 }
 
 const guestRouteRouteChildren: guestRouteRouteChildren = {
   guestLoginRoute: guestLoginRoute,
   guestSignupRoute: guestSignupRoute,
-}
+};
 
 const guestRouteRouteWithChildren = guestRouteRoute._addFileChildren(
   guestRouteRouteChildren,
-)
+);
 
 const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
   guestRouteRoute: guestRouteRouteWithChildren,
   ComponentsRoute: ComponentsRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
