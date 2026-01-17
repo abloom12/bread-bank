@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 
 const buttonVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm whitespace-nowrap',
+    'inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm whitespace-nowrap uppercase',
     'disabled:pointer-events-none disabled:opacity-50',
     '[&_svg]:shrink-0 [&>svg]:pointer-events-none',
   ],
@@ -16,7 +16,7 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-white',
         outline: '',
         ghost: '',
-        link: 'text-primary underline-offset-4 hover:underline',
+        link: 'text-primary lowercase underline-offset-4 hover:underline',
       },
       size: {
         'default': 'h-9 px-4',

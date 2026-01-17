@@ -109,16 +109,21 @@ function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
-// Accessible error container that accepts children or an errors array (e.g., from react-hook-form).
+// Accessible error container that accepts children or an errors array (from TanStack Form + Zod).
 function FieldError({
   className,
   errors,
   ...props
 }: React.ComponentProps<'div'> & {
-  errors?: Array<string | undefined>;
+  errors?: Array<string | { message: string } | undefined>;
 }) {
   const content = React.useMemo(() => {
-    const messages = (errors ?? []).filter((m): m is string => !!m);
+    console.log(errors);
+    const messages = (errors ?? [])
+      .map(m => (typeof m === 'object' && m !== null ? m.message : m))
+      .filter((m): m is string => !!m);
+
+    console.log(messages);
 
     if (!messages.length) return null;
 

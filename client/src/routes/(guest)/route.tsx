@@ -11,7 +11,9 @@ export const Route = createFileRoute('/(guest)')({
 function RouteComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Outlet />
+      <div className="min-w-[300px]">
+        <Outlet />
+      </div>
     </div>
   );
 }
