@@ -1,4 +1,4 @@
-# Bread Bank Starter Kit
+# React Express Postgres Starter
 
 A full-stack TypeScript monorepo starter using React 19, Express 5, and PostgreSQL with npm workspaces.
 

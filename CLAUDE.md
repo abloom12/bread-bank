@@ -64,7 +64,7 @@ Follow these patterns when creating or modifying routes:
 - When adding or changing protected routes, maintain `(app)/` and `(guest)/` folder semantics.
 
 For examples, edge cases, advanced routing patterns, and the full official rule set:
-**see `docs/tanstack-router-rules.md`.**
+**see `docs/rules/tanstack-router.md`.**
 This file contains the full official rule set from @tanstack/react-router. Use it as reference when implementing or refactoring routing logic.
 
 ### Server (`server/`)
